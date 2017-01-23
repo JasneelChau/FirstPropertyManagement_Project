@@ -12,11 +12,7 @@ namespace FirstPropertyManagement_Project
         {
             // i didnt like the text before 
             //heemesh testing
-<<<<<<< HEAD
-            //another test by sherwin 
-=======
-			//another test by melvin
->>>>>>> origin/master
+//heemesh is testing with sherwin 
 
         }
     }
