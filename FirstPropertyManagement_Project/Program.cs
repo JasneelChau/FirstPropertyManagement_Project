@@ -35,9 +35,9 @@ namespace FirstPropertyManagement_Project
                     fileNameNoExtension = fileName.Replace(fileextension, String.Empty);
                     fileNameReportPath = currentFilePath.Replace(fileextension, String.Empty);
 
-                    Console.WriteLine("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+                    //Console.WriteLine("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
                     //Console.WriteLine("File path is: " + files.Current.ToString()); // Entire file path
-                    Console.WriteLine("The current file name is: " + fileName); // File name + extension only
+                   // Console.WriteLine("The current file name is: " + fileName); // File name + extension only
                     //Console.WriteLine("File type is: " + fileextension); // Extension only
                     if(fileextension.Equals(".pdf") || fileextension.Equals(".PDF"))
                     {
@@ -61,15 +61,15 @@ namespace FirstPropertyManagement_Project
                             int numberOfChars = currentPageChars.Length;
                             int numberOfLines = ScanningPDF_methods.getNumberOfLines(currentPageChars);
                             string[] linesOfText = ScanningPDF_methods.getLinesOfText(currentPageChars, numberOfLines);
-                            Console.WriteLine("*****************************************************************************");
-                            Console.WriteLine("Page " + i);
-                            Console.WriteLine("Number of characters on this page is: " + numberOfChars);
-                            Console.WriteLine("Number of lines on this page is: " + numberOfLines);
+                            //Console.WriteLine("*****************************************************************************");
+                            //Console.WriteLine("Page " + i);
+                            //Console.WriteLine("Number of characters on this page is: " + numberOfChars);
+                            //Console.WriteLine("Number of lines on this page is: " + numberOfLines);
 
-                            for (int j = 0; j < linesOfText.Length; j++)
-                            {
-                                Console.WriteLine(linesOfText[j]);
-                            }
+                            //for (int j = 0; j < linesOfText.Length; j++)
+                            //{
+                               // Console.WriteLine(linesOfText[j]);
+                            //}
 
                             if (i == 0) // First page
                             {
@@ -79,19 +79,19 @@ namespace FirstPropertyManagement_Project
                                 accountType = ScanningPDF_methods.getRelevantTextData(linesOfText, "Account type");
                                 dueDate = ScanningPDF_methods.getDueDate(linesOfText);
                                 accountNumber = ScanningPDF_methods.getAccountNumber(linesOfText);
-                                Console.WriteLine("Account Number is: " + accountNumber);
-                                Console.WriteLine("Waste water cost equals: " + wasteWaterCost.ToString("0.00"));
-                                Console.WriteLine("Total cost equals: " + totalCost.ToString("0.00"));
-                                Console.WriteLine("Property Location is: " + propertyLocation);
-                                Console.WriteLine("Account Type is: " + accountType);
-                                Console.WriteLine("Due date is: " + dueDate);
+                                //Console.WriteLine("Account Number is: " + accountNumber);
+                                //Console.WriteLine("Waste water cost equals: " + wasteWaterCost.ToString("0.00"));
+                                //Console.WriteLine("Total cost equals: " + totalCost.ToString("0.00"));
+                                //Console.WriteLine("Property Location is: " + propertyLocation);
+                                //Console.WriteLine("Account Type is: " + accountType);
+                                //Console.WriteLine("Due date is: " + dueDate);
                             }
                             else if (i == 1) // Second page
                             {
                                 thisReadingDate = ScanningPDF_methods.getReadingDates(linesOfText, "This reading");
                                 lastReadingDate = ScanningPDF_methods.getReadingDates(linesOfText, "Last reading");
-                                Console.WriteLine("This reading date equals: " + thisReadingDate);
-                                Console.WriteLine("The last reading date equals: " + lastReadingDate);
+                               //Console.WriteLine("This reading date equals: " + thisReadingDate);
+                               // Console.WriteLine("The last reading date equals: " + lastReadingDate);
                             }
                             else // Execute if there is ever more than 2 pages within the .pdf file
                             {
@@ -118,61 +118,6 @@ namespace FirstPropertyManagement_Project
 
                     }
                 }
-                /*
-                ArrayList pdftexts = ReadPdfFileArrayList(filepaththree);
-                object[] textsArray = pdftexts.ToArray(); // There should only be 2 pages
-                
-                // By converting the arraylist to an array, each index within the array
-                // will essentially contain all the text from a single page from the pdf.
-                for(int i = 0; i < textsArray.Length; i++)
-                {
-                    string currentPage = textsArray[i].ToString();
-                    char[] currentPageChars = currentPage.ToCharArray();
-                    int numberOfChars = currentPageChars.Length;
-                    int numberOfLines = getNumberOfLines(currentPageChars);
-                    string[] linesOfText = getLinesOfText(currentPageChars, numberOfLines);
-                    Console.WriteLine("*****************************************************************************");
-                    Console.WriteLine("Page " + i);
-                    Console.WriteLine("Number of characters on this page is: " + numberOfChars);
-                    Console.WriteLine("Number of lines on this page is: " + numberOfLines);
-
-                    for (int j = 0; j < linesOfText.Length; j++)
-                    {
-                        Console.WriteLine(linesOfText[j]);
-                    }
-
-                    if(i == 0) // First page
-                    {
-                        string accountNumber = getAccountNumber(linesOfText);
-                        double wasteWaterCost = getRelevantCharges(linesOfText, "Wastewater fixed charges");
-                        double totalCost = getRelevantCharges(linesOfText, "Balance of current charges");
-                        string propertyLocation = getRelevantTextData(linesOfText, "Property location");
-                        string accountType = getRelevantTextData(linesOfText, "Account type");
-                        string dueDate = getDueDate(linesOfText);
-                        Console.WriteLine("Account Number is: " + accountNumber);
-                        Console.WriteLine("Waste water cost equals: " + wasteWaterCost.ToString("0.00"));
-                        Console.WriteLine("Total cost equals: " + totalCost.ToString("0.00"));
-                        Console.WriteLine("Property Location is: " + propertyLocation);
-                        Console.WriteLine("Account Type is: " + accountType);
-                        Console.WriteLine("Due date is: " + dueDate);
-                        //DateTime date = DateTime.Parse(dueDate, new CultureInfo("en-NZ", true), DateTimeStyles.AllowWhiteSpaces & DateTimeStyles.AssumeLocal);
-                        //Console.WriteLine("Due date formatted: " + date);
-                    }
-                    else if(i == 1) // Second page
-                    {
-                        string thisReadingDate = getReadingDates(linesOfText, "This reading");
-                        string lastReadingDate = getReadingDates(linesOfText, "Last reading");
-                        Console.WriteLine("This reading date equals: " + thisReadingDate);
-                        Console.WriteLine("The last reading date equals: " + lastReadingDate);
-                    }
-                    else // Execute if there is ever more than 2 pages within the .pdf file
-                    {
-                        Console.WriteLine("Program only extracts the relevant data needed if they are " +
-                                          "located on the first 2 pages on the .pdf watercare invoice.");
-                        break;
-                    }
-                    
-                }*/
                 
             }
             catch (IOException e)
