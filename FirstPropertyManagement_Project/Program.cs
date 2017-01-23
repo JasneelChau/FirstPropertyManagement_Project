@@ -10,13 +10,8 @@ namespace FirstPropertyManagement_Project
     {
         static void Main(string[] args)
         {
-            //hello world test
-            //Jas
-			// hello world
-			//heemish is gay
-			// test
-            //Sherwin
-
+            // i didnt like the text before 
+            //heemesh testing
         }
     }
 }
