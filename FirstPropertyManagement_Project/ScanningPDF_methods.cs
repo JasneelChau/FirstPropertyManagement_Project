@@ -349,5 +349,22 @@ namespace FirstPropertyManagement_Project
             else
                 return accountNo;
         }
+
+        public static double calculateChargeTenantAmount(double totalCost, double fixedCost, bool procedureOne)
+        {
+            double chargeAmount = 0;
+            if(procedureOne)
+            {
+                // Perform necessary steps on Palace
+                chargeAmount = totalCost - fixedCost;
+            }
+            else
+            {
+                // Perform necessary steps on Palace
+                chargeAmount = totalCost - fixedCost;
+            }
+
+            return chargeAmount;
+        }
     }
 }

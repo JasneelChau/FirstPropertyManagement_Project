@@ -102,6 +102,9 @@ namespace FirstPropertyManagement_Project
 
                         }
 
+                        // The bool parameter needs to updated according to procedure field from database
+                        double amountToCharge = ScanningPDF_methods.calculateChargeTenantAmount(totalCost, wasteWaterCost, true);
+
                         FileStream createFile = new FileStream(fileNameReportPath + " Report.txt", FileMode.Create, FileAccess.Write);
                         StreamWriter sw = new StreamWriter(createFile);
                         sw.WriteLine("Report of Extracted data from " + fileNameNoExtension +
@@ -114,6 +117,7 @@ namespace FirstPropertyManagement_Project
                         sw.WriteLine("Due date is: " + dueDate);
                         sw.WriteLine("This reading date equals: " + thisReadingDate);
                         sw.WriteLine("The last reading date equals: " + lastReadingDate);
+                        sw.WriteLine("Amount to charge tenant is $" + amountToCharge.ToString("0.00"));
                         sw.Close();
 
                     }
