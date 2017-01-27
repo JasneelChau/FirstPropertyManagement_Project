@@ -111,7 +111,7 @@ namespace FirstPropertyManagement_Project
             return linesOfText;
         }
 
-        public static double getRelevantCharges(string[] linesOfText, string textToSearch)
+        public static double getRelevantCharges(string[] linesOfText, string textToSearch, string overdueText)
         {
             int length = linesOfText.Length;
             ArrayList matchingLines = new ArrayList();
@@ -124,8 +124,7 @@ namespace FirstPropertyManagement_Project
             for (int i = 0; i < length; i++)
             {
                 if (linesOfText[i].Contains(textToSearch)) // If textToSearch is found in the current
-                                                           // line, then add that line number/index to the arraylist
-                {
+                {                                          // line, then add that line number/index to the arraylist
                     matchingLines.Add(i);
                 }
             }
@@ -154,10 +153,49 @@ namespace FirstPropertyManagement_Project
                     if (Double.TryParse(relevantCostStr, out relevantCost))
                     {
                         relevantCost = Double.Parse(relevantCostStr);
+                        matchingLines.Clear(); // Clear the arraylist to store the new indices pertaining 
+                        // to the next search (i.e. searching for overdue text)
                         break; // Once correct data is found, stop searching and break out of the loop
                     }
                 }
             }
+
+            // Begin searching for overdue text and cost
+
+            for (int i = 0; i < length; i++)
+            {
+                if (linesOfText[i].Contains(overdueText)) // If overdueText is found in the current
+                {                                         // line, then add that line number/index to the arraylist
+                    matchingLines.Add(i);
+                }
+            }
+
+            matchingLinesObjArray = matchingLines.ToArray();
+            double overdueCost = 0;
+            for (int i = 0; i < matchingLinesObjArray.Length; i++)
+            {
+                lineToCheck = linesOfText[Convert.ToInt32(matchingLinesObjArray[i])];
+                relevantCostStr = Regex.Replace(lineToCheck, @"[^\d+|\.\-]", "").Trim();
+                // This regular expression should replace every character that is NOT a decimal digit,
+                // a period (.) or a dash (-) with nothing
+                //lineToCheck.Substring(textToSearch.Length).Replace("$", "").Trim(); 
+
+                // Checking to see if relevant data was actually contained in this specific line
+                // of text
+                if ((!relevantCostStr.Equals("")) || relevantCostStr != null)
+                {
+                    // Specifically, since this method is used to obtain a price/cost figure
+                    // we can check to see if the data found can be converted into a double
+                    // if so, then we can be more sure that we found a price/cost figure
+                    if (Double.TryParse(relevantCostStr, out overdueCost))
+                    {
+                        overdueCost = Double.Parse(relevantCostStr);
+                        matchingLines.Clear();
+                        break; // Once correct data is found, stop searching and break out of the loop
+                    }
+                }
+            }
+            relevantCost = relevantCost + overdueCost;
             return relevantCost;
         }
 
@@ -185,6 +223,10 @@ namespace FirstPropertyManagement_Project
                 if (!relevantTextData.Equals(""))
                 {
                     break;
+                }
+                else
+                {
+                    relevantTextData = textToSearch + " not found";
                 }
             }
             return relevantTextData;
@@ -275,6 +317,10 @@ namespace FirstPropertyManagement_Project
                 if ((!relevantTextData.Equals("")) && (Regex.IsMatch(relevantTextData, @"^\d{2}\-[a-zA-Z]{3}\-\d{2}$")))
                 {
                     break;
+                }
+                else
+                {
+                    relevantTextData = textToSearch + " date not found";
                 }
             }
             return relevantTextData;

@@ -73,8 +73,8 @@ namespace FirstPropertyManagement_Project
 
                             if (i == 0) // First page
                             {
-                                wasteWaterCost = ScanningPDF_methods.getRelevantCharges(linesOfText, "Wastewater fixed charges");
-                                totalCost = ScanningPDF_methods.getRelevantCharges(linesOfText, "Balance of current charges");
+                                wasteWaterCost = ScanningPDF_methods.getRelevantCharges(linesOfText, "Wastewater fixed charges", "There is no overdue fixed charges");
+                                totalCost = ScanningPDF_methods.getRelevantCharges(linesOfText, "Balance of current charges", "Balance still owing, now overdue");
                                 propertyLocation = ScanningPDF_methods.getRelevantTextData(linesOfText, "Property location");
                                 accountType = ScanningPDF_methods.getRelevantTextData(linesOfText, "Account type");
                                 dueDate = ScanningPDF_methods.getDueDate(linesOfText);
