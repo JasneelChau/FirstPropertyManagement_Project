@@ -224,11 +224,13 @@ namespace FirstPropertyManagement_Project
                 {
                     break;
                 }
-                else
-                {
-                    relevantTextData = textToSearch + " not found";
-                }
             }
+
+            if (relevantTextData.Equals(""))
+            {
+                relevantTextData = textToSearch + " not found";
+            }
+
             return relevantTextData;
         }
 
@@ -283,6 +285,12 @@ namespace FirstPropertyManagement_Project
                     }
                 }
             }
+
+            if(dateOne.Equals(""))
+            {
+                dateOne = "Due date not found";
+            }
+
             return dateOne;
         }
 
@@ -318,11 +326,13 @@ namespace FirstPropertyManagement_Project
                 {
                     break;
                 }
-                else
-                {
-                    relevantTextData = textToSearch + " date not found";
-                }
             }
+
+            if(relevantTextData.Equals("") || ((!relevantTextData.Equals("")) && (!Regex.IsMatch(relevantTextData, @"^\d{2}\-[a-zA-Z]{3}\-\d{2}$"))))
+            {
+                relevantTextData = textToSearch + " date not found";
+            }
+
             return relevantTextData;
         }
 
