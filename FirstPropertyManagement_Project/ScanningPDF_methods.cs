@@ -160,6 +160,8 @@ namespace FirstPropertyManagement_Project
                 }
             }
 
+            relevantCostStr = String.Empty;
+
             // Begin searching for overdue text and cost
 
             for (int i = 0; i < length; i++)
