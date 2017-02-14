@@ -378,5 +378,282 @@ namespace FirstPropertyManagement_Project
 
             return chargeAmount;
         }
+
+        // This method should only be called as a backup to getRelevantCharges method if the latter is unable
+        // to retrieve the total cost from the watercare invoice, as this method is not as reliable. It 
+        // obtains the total cost assuming that it will always be found in the line that is 2 indices before
+        // the line which contains the propertyLocationValue
+
+        public static double getTotalCostBackup(string[] linesOfText, string propertyLocationValue)
+        {
+            int propertyLocationValueLine = 0;
+            int totalCostLine = 0;
+            string totalCostStr;
+            double totalCost = 0;
+
+            for (int i = 0; i < linesOfText.Length; i++)
+            {
+                if (linesOfText[i].Equals(propertyLocationValue))
+                {
+                    propertyLocationValueLine = i;
+                    totalCostLine = propertyLocationValueLine - 2; // Assuming the total cost is always in the line 2 indices
+                                                                   // before the propertyLocationValue line
+                    break;
+                }
+            }
+
+            // If the assumed total cost line contains a '$' sign, we can be more sure we have found
+            // a price/cost figure, then use a regular expression to replace all characters that are not
+            // a decimal digit or a (.) or a (-) with nothing.
+            // Then if the remaining string can be parsed into a double, we can be more sure that we have 
+            // found the total cost.
+            if (linesOfText[totalCostLine].Contains('$'))
+            {
+                totalCostStr = (Regex.Replace(linesOfText[totalCostLine], @"[^\d+|\.\-]", "").Trim());
+
+                if (Double.TryParse(totalCostStr, out totalCost))
+                {
+                    totalCost = Double.Parse(totalCostStr);
+                }
+            }
+
+            return totalCost;
+        }
+
+        // This method should only be called as a backup to getDueDate method if the latter is unable
+        // to retrieve the due date from the watercare invoice, as this method is not as reliable. It 
+        // obtains the due date assuming that it will always be found in the line that is 2 indices after
+        // the line which contains the propertyLocationValue
+
+        public static string getDueDateBackup(string[] linesOfText, string propertyLocationValue)
+        {
+            int propertyLocationValueLine = 0;
+            int dueDateLine = 0;
+            string dueDateStr = "";
+
+            for (int i = 0; i < linesOfText.Length; i++)
+            {
+                if (linesOfText[i].Equals(propertyLocationValue))
+                {
+                    propertyLocationValueLine = i;
+                    dueDateLine = propertyLocationValueLine + 2; // Assuming the due date is always in the line 2 indices
+                                                                 // after the propertyLocationValue line
+                    break;
+                }
+            }
+
+            // This if statement checks whether the assumed due date line does not equal nothing AND if the 
+            // line matches the following pattern: 2 decimal digits, a white space character,
+            // 3 alphabetical characters (lower or upper case), a white space character and 4 decimal
+            // digits. We use this pattern because the format for the date on this line is supposed
+            // to be DD MMM YYYY , where DD and YYYY are numbers and MMM is text AND the length of the
+            // current line is equal to 11 characters
+
+            if ((!linesOfText[dueDateLine].Equals("")) && (Regex.IsMatch(linesOfText[dueDateLine], @"^\d{2}\s[a-zA-Z]{3}\s\d{4}$")) && (linesOfText[dueDateLine].Length == 11))
+            {
+                dueDateStr = linesOfText[dueDateLine];
+            }
+            else
+            {
+                dueDateStr = "Due date not found";
+            }
+
+            return dueDateStr;
+        }
+
+        // This is one of the methods that will be used to obtain the information from the Details section that is 
+        // located on the 2nd page in the watercare invoice .pdf 
+        // This method works by first searching for a line that equals chargeDetailsText (Charge details) and makes
+        // that line equal to the startIndex, then searches for the line that equals consumptionDetailsText 
+        // (Consumption details) and makes that line equal to the endIndex. 
+        // The lines in between the startIndex and endIndex contain all the lines of text that pertain to the
+        // charge details. Those lines are added to a list and then converted to a string array so that it can be
+        // returned.
+
+        public static string[] getChargeDetails(string[] linesOfText, string chargeDetailsText, string consumptionDetailsText)
+        {
+            int length = linesOfText.Length;
+            int startIndex = 0;
+            int endIndex = 0;
+            List<string> chargeDetails = new List<string>();
+
+            for (int i = 0; i < length; i++)
+            {
+                if (linesOfText[i].Equals(chargeDetailsText))
+                {
+                    startIndex = i;
+                }
+
+                if (startIndex != 0) // Precaution to make sure that the endIndex is only searched for after the startIndex
+                {                   // has been found
+                    if (linesOfText[i].Equals(consumptionDetailsText))
+                    {
+                        endIndex = i;
+                        break;
+                    }
+                }
+
+            }
+
+            for (int i = startIndex; i < endIndex; i++)
+            {
+                chargeDetails.Add(linesOfText[i]);
+            }
+
+            return chargeDetails.ToArray();
+        }
+
+        // This is one of the methods that will be used to obtain the information from the Details section that is 
+        // located on the 2nd page in the watercare invoice .pdf 
+        // This method works by first searching for a line that equals consumptionDetailsText (Consumption details) and 
+        // makes that line equal to the startIndex, then searches for the line that conatins consumptionDetailsText 
+        // (Wastewater) and makes the line after this equal to the endIndex. 
+        // The endIndexText should be equal to "Wastewater" according to the current watercare invoice .pdf format as of
+        // 07/02/2017 since that is the last field of data within the consumption details
+        // The lines in between the startIndex and endIndex contain all the lines of text that pertain to the
+        // consumption details. Those lines are added to a list and then converted to a string array 
+        // so that it can be returned.
+
+        public static string[] getConsumptionDetails(string[] linesOfText, string consumptionDetailsText, string endIndexText)
+        {
+            int length = linesOfText.Length;
+            int startIndex = 0;
+            int endIndex = 0;
+            List<string> consumptionDetails = new List<string>();
+
+            for (int i = 0; i < length; i++)
+            {
+                if (linesOfText[i].Equals(consumptionDetailsText))
+                {
+                    startIndex = i;
+                }
+
+                if (startIndex != 0) // Precaution to make sure that the endIndex is only searched for after the startIndex
+                {                    // has been found
+                    if (linesOfText[i].Contains(endIndexText))
+                    {
+                        endIndex = i + 1;
+                        break;
+                    }
+                }
+
+            }
+
+            for (int i = startIndex; i < endIndex; i++)
+            {
+                consumptionDetails.Add(linesOfText[i]);
+            }
+
+            return consumptionDetails.ToArray();
+        }
+
+
+        // This method should only be called as a backup to getRelevantCharges method if the latter is unable
+        // to retrieve the fixed waste water cost from the watercare invoice, as this method is not as reliable
+        // Furthurmore, this backup method should only be called when the main is extracting data from the 
+        // SECOND page of the watercare invoice .pdf 
+        // This method works by searching through all lines of text until one equals "Fixed charges", if found
+        // then the method assumes the next line after should contain the fixed waste water cost. 
+
+        // Example of text output from the second page from a watercare invoice .pdf
+        /* ...
+           ...
+           Fixed Charges
+           Wastewater 33 days $205.000 pa $ 18.53
+           * 38 chars is the line length
+           * "pa $ 18.53" - substring needed (38(length) - 8) = desired length of substring?
+        */
+        // In some invoices, there may be a second wastewater cost figure after the initital figure found
+        // hence the precautionary step taken at the end of the for loop which prevents the program from
+        // breaking out of the said for loop if there is a second wastewater cost figure
+        public static double getWasteWaterCostBackup(string[] linesOfText, string fixedChargesText)
+        {
+            int length = linesOfText.Length;
+            string relevantTextData = "";
+            string lineToCheck = "";
+            string relevantCostStr = "";
+            int indexToCheck = 0;
+            double wasteWaterCost = 0;
+            double currentIndexWasteWaterCost = 0;
+
+            for (int i = 0; i < length; i++)
+            {
+                // If current line equals fixedChargesText OR if indexToCheck is greater than zero (essentially meaning
+                // if this if block has been entered at least once)
+                if (linesOfText[i].Equals(fixedChargesText) || indexToCheck > 0)
+                {
+                    indexToCheck = i + 1;
+                    lineToCheck = linesOfText[indexToCheck]; // Assuming that once the text "Fixed Charges" is found on
+                                                             // the second page, the next line contains the waste water
+                                                             // cost amount
+                    if (lineToCheck.Contains("Wastewater"))
+                    {
+                        relevantTextData = lineToCheck.Substring(lineToCheck.Length - 8).Trim();
+                        if (relevantTextData.Contains('$'))
+                        {
+                            relevantCostStr = Regex.Replace(relevantTextData, @"[^\d+|\.\-]", "").Trim(); // Assuming the substring follows
+                                                                                                          // the above format, this regular expression can replace the '$' with nothing.
+
+                            // Further check to make sure the remaining string left over can be converted into a double, if so,
+                            // then we are more sure that we have found the fixed wastewater cost
+                            if (Double.TryParse(relevantCostStr, out currentIndexWasteWaterCost))
+                            {
+                                currentIndexWasteWaterCost = Double.Parse(relevantCostStr);
+                                wasteWaterCost = wasteWaterCost + currentIndexWasteWaterCost;
+                            }
+                        }
+                        //break;
+                    }
+
+                    if (!linesOfText[indexToCheck + 1].Contains("Wastewater")) // This step checks to see whether
+                        break;                                                 // the next line of text, after the
+                                                                               // initial waste water figure was found, also contains another
+                                                                               // waste water figure, if so then perform the same procedure again
+                                                                               // on that line, IF NOT, then break out of the for loop
+                }
+            }
+
+            return wasteWaterCost;
+        }
+
+        public static string backupThisReadingMethod(string[] pdftext, int ThisOrLast)
+        {
+            int whichLine = 0;
+            for (int i = 0; i < pdftext.Length; i++)
+            {
+                if (pdftext[i].Contains("Consumption") && (pdftext[i].Substring(pdftext[i].Length - 2)).Equals("kL"))
+                {
+                    whichLine = i;
+                }
+            }
+            if (whichLine == 0)
+                return "Correct Reading not found";
+            else
+                return pdftext[whichLine - ThisOrLast];
+        }
+
+        public static string backupGetAccountMethod(string[] pdftext)
+        {
+            int whichLine = 0;
+            for (int i = 0; i < pdftext.Length; i++)
+            {
+                if (pdftext[i].Equals("(RES)"))
+                {
+                    whichLine = i;
+                }
+            }
+
+            if (whichLine == 0)
+                return "Account Number not found";
+            else
+                return pdftext[whichLine - 1];
+        }
+
+        public static string backupGetAccount_usingFileName(string filename)
+        {
+            return filename.Substring(15, 10);
+        }
     }
+
+
 }
