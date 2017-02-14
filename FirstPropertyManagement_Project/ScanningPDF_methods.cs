@@ -230,7 +230,7 @@ namespace FirstPropertyManagement_Project
 
             if (relevantTextData.Equals(""))
             {
-                relevantTextData = textToSearch + " not found";
+                relevantTextData = null;
             }
 
             return relevantTextData;
@@ -332,7 +332,7 @@ namespace FirstPropertyManagement_Project
 
             if(relevantTextData.Equals("") || ((!relevantTextData.Equals("")) && (!Regex.IsMatch(relevantTextData, @"^\d{2}\-[a-zA-Z]{3}\-\d{2}$"))))
             {
-                relevantTextData = textToSearch + " date not found";
+                relevantTextData = null;
             }
 
             return relevantTextData;
@@ -357,7 +357,7 @@ namespace FirstPropertyManagement_Project
                 }
             }
             if (accountNo == null)
-                return "Error, no Account Number";
+                return accountNo;
             else
                 return accountNo;
         }

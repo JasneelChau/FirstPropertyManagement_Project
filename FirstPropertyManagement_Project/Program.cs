@@ -49,6 +49,8 @@ namespace FirstPropertyManagement_Project
                         string dueDate="";
                         string thisReadingDate="";
                         string lastReadingDate="";
+                        string[] chargeDetails = null;
+                        string[] consumptionDetails = null;
                         ArrayList pdftexts = ScanningPDF_methods.ReadPdfFileArrayList(currentFilePath);
                         object[] textsArray = pdftexts.ToArray(); // There should only be 2 pages
 
@@ -73,25 +75,59 @@ namespace FirstPropertyManagement_Project
 
                             if (i == 0) // First page
                             {
-                                wasteWaterCost = ScanningPDF_methods.getRelevantCharges(linesOfText, "Wastewater fixed charges", "There is no overdue fixed charges");
-                                totalCost = ScanningPDF_methods.getRelevantCharges(linesOfText, "Balance of current charges", "Balance still owing, now overdue");
+                                wasteWaterCost = 0;//ScanningPDF_methods.getRelevantCharges(linesOfText, "Wastewater fixed charges", "There is no overdue fixed charges");
+                                totalCost = 0;// ScanningPDF_methods.getRelevantCharges(linesOfText, "Balance of current charges", "Balance still owing, now overdue");
                                 propertyLocation = ScanningPDF_methods.getRelevantTextData(linesOfText, "Property location");
                                 accountType = ScanningPDF_methods.getRelevantTextData(linesOfText, "Account type");
-                                dueDate = ScanningPDF_methods.getDueDate(linesOfText);
-                                accountNumber = ScanningPDF_methods.getAccountNumber(linesOfText);
+                                dueDate = "Due date not found";//ScanningPDF_methods.getDueDate(linesOfText);
+                                accountNumber = null;//ScanningPDF_methods.getAccountNumber(linesOfText);
                                 //Console.WriteLine("Account Number is: " + accountNumber);
                                 //Console.WriteLine("Waste water cost equals: " + wasteWaterCost.ToString("0.00"));
                                 //Console.WriteLine("Total cost equals: " + totalCost.ToString("0.00"));
                                 //Console.WriteLine("Property Location is: " + propertyLocation);
                                 //Console.WriteLine("Account Type is: " + accountType);
                                 //Console.WriteLine("Due date is: " + dueDate);
+
+                                if(accountNumber == null)
+                                {
+                                    accountNumber = ScanningPDF_methods.backupGetAccountMethod(linesOfText);
+                                }
+
+                                if (totalCost == 0)
+                                {
+                                    totalCost = ScanningPDF_methods.getTotalCostBackup(linesOfText, propertyLocation);
+                                }
+
+                                if (dueDate.Equals("") || dueDate.Equals("Due date not found"))
+                                {
+                                    dueDate = ScanningPDF_methods.getDueDateBackup(linesOfText, propertyLocation);
+                                }
+
                             }
                             else if (i == 1) // Second page
                             {
-                                thisReadingDate = ScanningPDF_methods.getReadingDates(linesOfText, "This reading");
-                                lastReadingDate = ScanningPDF_methods.getReadingDates(linesOfText, "Last reading");
-                               //Console.WriteLine("This reading date equals: " + thisReadingDate);
-                               // Console.WriteLine("The last reading date equals: " + lastReadingDate);
+                                thisReadingDate = null; ScanningPDF_methods.getReadingDates(linesOfText, "This reading");
+                                lastReadingDate = null;// ScanningPDF_methods.getReadingDates(linesOfText, "Last reading");
+                                chargeDetails = ScanningPDF_methods.getChargeDetails(linesOfText, "Charge details", "Consumption details");
+                                consumptionDetails = ScanningPDF_methods.getConsumptionDetails(linesOfText, "Consumption details", "Wastewater");
+                                //Console.WriteLine("This reading date equals: " + thisReadingDate);
+                                // Console.WriteLine("The last reading date equals: " + lastReadingDate);
+
+                                if (wasteWaterCost == 0)
+                                {
+                                    wasteWaterCost = ScanningPDF_methods.getWasteWaterCostBackup(linesOfText, "Fixed charges");
+                                }
+
+                                if(thisReadingDate == null)
+                                {
+                                    thisReadingDate = ScanningPDF_methods.backupThisReadingMethod(linesOfText, 2).Substring(13);
+                                }
+
+                                if (lastReadingDate == null)
+                                {
+                                    lastReadingDate = ScanningPDF_methods.backupThisReadingMethod(linesOfText, 1).Substring(13);
+                                }
+
                             }
                             else // Execute if there is ever more than 2 pages within the .pdf file
                             {
@@ -118,6 +154,16 @@ namespace FirstPropertyManagement_Project
                         sw.WriteLine("This reading date equals: " + thisReadingDate);
                         sw.WriteLine("The last reading date equals: " + lastReadingDate);
                         sw.WriteLine("Amount to charge tenant is $" + amountToCharge.ToString("0.00"));
+                        sw.WriteLine("---------------------------------------");
+                        for (int j = 0; j < chargeDetails.Length; j++)
+                        {
+                            sw.WriteLine(chargeDetails[j]);
+                        }
+
+                        for (int j = 0; j < consumptionDetails.Length; j++)
+                        {
+                            sw.WriteLine(consumptionDetails[j]);
+                        }
                         sw.Close();
 
                     }
