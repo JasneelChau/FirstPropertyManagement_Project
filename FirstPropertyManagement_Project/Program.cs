@@ -19,15 +19,26 @@ namespace FirstPropertyManagement_Project
             {
                 
                 //Testing
-                string folderpath = @"C:\FPM_pdf_files";
+                string folderpath = @"C:\2015 FPM_pdf_files";
                 // Be sure to update folderpath to match your directory!
                 string currentFilePath = "";
                 string fileName="";
                 string fileextension="";
                 string fileNameReportPath="";
                 string fileNameNoExtension="";
-                IEnumerator files = Directory.GetFiles(folderpath).GetEnumerator(); 
-                while(files.MoveNext())
+                IEnumerator files = Directory.GetFiles(folderpath).GetEnumerator();
+
+                List<string> accountNumbersList = new List<string>();
+                List<double> wasteWaterCostsList = new List<double>();
+                List<double> totalCostsList = new List<double>();
+                List<string> propertyLocationsList = new List<string>();
+                List<string> accountTypesList = new List<string>();
+                List<string> dueDatesList = new List<string>();
+                List<string> thisReadingDatesList = new List<string>();
+                List<string> lastReadingDatesList = new List<string>();
+                List<double> chargeTenantList = new List<double>();
+
+                while (files.MoveNext())
                 {
                     currentFilePath = files.Current.ToString(); // Entire file path
                     fileName = SystemIOPath.GetFileName(currentFilePath); // File name + extension only
@@ -120,12 +131,12 @@ namespace FirstPropertyManagement_Project
 
                                 if(thisReadingDate == null)
                                 {
-                                    thisReadingDate = ScanningPDF_methods.backupThisReadingMethod(linesOfText, 2).Substring(13);
+                                    thisReadingDate = ScanningPDF_methods.backupThisReadingMethod(linesOfText, 2);
                                 }
 
                                 if (lastReadingDate == null)
                                 {
-                                    lastReadingDate = ScanningPDF_methods.backupThisReadingMethod(linesOfText, 1).Substring(13);
+                                    lastReadingDate = ScanningPDF_methods.backupThisReadingMethod(linesOfText, 1);
                                 }
 
                             }
@@ -166,9 +177,21 @@ namespace FirstPropertyManagement_Project
                         }
                         sw.Close();
 
+                        accountNumbersList.Add(accountNumber);
+                        wasteWaterCostsList.Add(wasteWaterCost);
+                        totalCostsList.Add(totalCost);
+                        propertyLocationsList.Add(propertyLocation);
+                        accountTypesList.Add(accountType);
+                        dueDatesList.Add(dueDate);
+                        thisReadingDatesList.Add(thisReadingDate);
+                        lastReadingDatesList.Add(lastReadingDate);
+                        chargeTenantList.Add(amountToCharge);
                     }
                 }
-                
+                string excelFileReport = ExcelGeneration.generateExcelFileReport(folderpath, accountNumbersList.ToArray(), wasteWaterCostsList.ToArray(),
+                    totalCostsList.ToArray(), propertyLocationsList.ToArray(), accountTypesList.ToArray(), dueDatesList.ToArray(),
+                    thisReadingDatesList.ToArray(), lastReadingDatesList.ToArray(), chargeTenantList.ToArray());
+
             }
             catch (IOException e)
             {

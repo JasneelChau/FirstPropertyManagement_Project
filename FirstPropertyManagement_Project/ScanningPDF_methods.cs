@@ -629,7 +629,7 @@ namespace FirstPropertyManagement_Project
             if (whichLine == 0)
                 return "Correct Reading not found";
             else
-                return pdftext[whichLine - ThisOrLast];
+                return pdftext[whichLine - ThisOrLast].Substring(13);
         }
 
         public static string backupGetAccountMethod(string[] pdftext)
