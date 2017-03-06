@@ -445,24 +445,35 @@ namespace FirstPropertyManagement_Project
             return totalCost;
         }
 
-        // This method should only be called as a backup to getDueDate method if the latter is unable
-        // to retrieve the due date from the watercare invoice, as this method is not as reliable. It 
-        // obtains the due date assuming that it will always be found in the line that is 2 indices after
-        // the line which contains the propertyLocationValue
+        // This method should only be called as a backup to getDueOrInvoiceDate method if the latter is unable
+        // to retrieve the due or invoice date from the watercare invoice, as this method is not as reliable. It 
+        // obtains the due or invoice date assuming that it will always be found in the line that is 2 indices after
+        // the line (Due Date) or 1 index after the line (Invoice Date) which contains the propertyLocationValue
 
-        public static string getDueDateBackup(string[] linesOfText, string propertyLocationValue)
+        public static string getDueOrInvoiceDateBackup(string[] linesOfText, string propertyLocationValue, int addToPropLine)
         {
             int propertyLocationValueLine = 0;
-            int dueDateLine = 0;
-            string dueDateStr = "";
+            int dueOrInvoiceDateLine = 0;
+            string dueOrInvoiceDateStr = "";
 
             for (int i = 0; i < linesOfText.Length; i++)
             {
                 if (linesOfText[i].Equals(propertyLocationValue))
                 {
                     propertyLocationValueLine = i;
-                    dueDateLine = propertyLocationValueLine + 2; // Assuming the due date is always in the line 2 indices
-                                                                 // after the propertyLocationValue line
+                    if (addToPropLine == 2)
+                    {
+                        dueOrInvoiceDateLine = propertyLocationValueLine + 2; // Assuming the due date is always in the line 2 indices
+                                                                              // after the propertyLocationValue line
+                    }
+                    else if (addToPropLine == 1)
+                    {
+                        dueOrInvoiceDateLine = propertyLocationValueLine + 1; // Assuming the invoice date is always in the line 1 index
+                                                                              // after the propertyLocationValue line
+                    }
+                    else
+                        dueOrInvoiceDateLine = 0; // addToPropLine must be a valid number
+
                     break;
                 }
             }
@@ -474,16 +485,16 @@ namespace FirstPropertyManagement_Project
             // to be DD MMM YYYY , where DD and YYYY are numbers and MMM is text AND the length of the
             // current line is equal to 11 characters
 
-            if ((!linesOfText[dueDateLine].Equals("")) && (Regex.IsMatch(linesOfText[dueDateLine], @"^\d{2}\s[a-zA-Z]{3}\s\d{4}$")) && (linesOfText[dueDateLine].Length == 11))
+            if ((!linesOfText[dueOrInvoiceDateLine].Equals("")) && (Regex.IsMatch(linesOfText[dueOrInvoiceDateLine], @"^\d{2}\s[a-zA-Z]{3}\s\d{4}$")) && (linesOfText[dueOrInvoiceDateLine].Length == 11))
             {
-                dueDateStr = linesOfText[dueDateLine];
+                dueOrInvoiceDateStr = linesOfText[dueOrInvoiceDateLine];
             }
             else
             {
-                dueDateStr = "Due date not found";
+                dueOrInvoiceDateStr = "Correct date not found";
             }
 
-            return dueDateStr;
+            return dueOrInvoiceDateStr;
         }
 
         // This is one of the methods that will be used to obtain the information from the Details section that is 

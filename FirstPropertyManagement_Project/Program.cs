@@ -139,14 +139,12 @@ namespace FirstPropertyManagement_Project
 
                                 if (dueDate.Equals("") || dueDate.Equals("Correct date not found"))
                                 {
-                                    dueDate = ScanningPDF_methods.getDueDateBackup(linesOfText, propertyLocation);
+                                    dueDate = ScanningPDF_methods.getDueOrInvoiceDateBackup(linesOfText, propertyLocation, 2);
                                 }
 
                                 if (invoiceDate.Equals("") || invoiceDate.Equals("Correct date not found"))
                                 {
-                                    invoiceDate = "Need to add backup method";//getDueDateBackup(linesOfText, propertyLocation);
-                                    //invoiceDateOutput = String.Empty;
-                                    //invoiceDateOutput = "Need to add backup method";
+                                    invoiceDate = ScanningPDF_methods.getDueOrInvoiceDateBackup(linesOfText, propertyLocation, 1);
                                 }
 
                             }
