@@ -236,11 +236,14 @@ namespace FirstPropertyManagement_Project
             return relevantTextData;
         }
 
-        // This getDueDate function works under the assumption that the latest date found
+        // This getDueOrInvoiceDate function works under the assumption that the latest date found
         // on the first page in the watercare invoice .pdf, will always be considered as 
-        // the due date
+        // the due date OR if searching for the invoice date, the assumption will be that the earliest
+        // date found will always be considered as the invoice date
+        // When calling this method, make whichDate equal to 1 if searching for due date,
+        // If searching for invoice date, make whichDate equal to 0
 
-        public static string getDueDate(string[] linesOfText)
+        public static string getDueOrInvoiceDate(string[] linesOfText, int whichDate)
         {
             int length = linesOfText.Length;
             string dateOne = "";
@@ -274,23 +277,45 @@ namespace FirstPropertyManagement_Project
                 // If both string fields contain a date, then perform a comparison of dates
                 if ((!dateOne.Equals("")) && (!dateTwo.Equals("")))
                 {
-                    // If dateOneDT's date is later than dateTwoDT's date i.e. greater than zero
-                    if (dateOneDT.CompareTo(dateTwoDT) > 0)
+                    // Searching for due date
+                    if (whichDate == 1)
                     {
-                        // Don't do anything because dateOneDT is later than
-                        // dateTwoDT
+                        // If dateOneDT's date is later than dateTwoDT's date i.e. greater than zero
+                        if (dateOneDT.CompareTo(dateTwoDT) > 0)
+                        {
+                            // Don't do anything because dateOneDT is later than
+                            // dateTwoDT
+                        }
+                        else
+                        {
+                            dateOneDT = dateTwoDT;
+                            dateOne = dateTwo;
+                        }
                     }
-                    else
+                    else if (whichDate == 0) // Searching for invoice date
                     {
-                        dateOneDT = dateTwoDT;
-                        dateOne = dateTwo;
+                        // If dateOneDT's date is earlier than or the same as dateTwoDT's date i.e. less than or equal to zero
+                        if (dateOneDT.CompareTo(dateTwoDT) <= 0)
+                        {
+                            // Don't do anything because dateOneDT is earlier than
+                            // or the same as dateTwoDT
+                        }
+                        else
+                        {
+                            dateOneDT = dateTwoDT;
+                            dateOne = dateTwo;
+                        }
+                    }
+                    else // Invalid whichDate parameter value
+                    {
+                        return "Invalid parameter";
                     }
                 }
             }
 
-            if(dateOne.Equals(""))
+            if (dateOne.Equals(""))
             {
-                dateOne = "Due date not found";
+                dateOne = "Correct date not found";
             }
 
             return dateOne;
@@ -652,6 +677,260 @@ namespace FirstPropertyManagement_Project
         public static string backupGetAccount_usingFileName(string filename)
         {
             return filename.Substring(15, 10);
+        }
+
+        // This method will be used to obtain the "This reading" or
+        // the "Last reading" lines. Pass in "This reading" or "Last
+        // reading" as a parameter into textToSearch
+        // Only call this method after you have called the getConsumptionDetails
+        // method and it returns a string array with valid text
+
+        public static string getThisOrLastReadingLine(string[] consumptionDetails, string textToSearch)
+        {
+            string lineToCheck = "";
+            for (int i = 0; i < consumptionDetails.Length; i++)
+            {
+                if (consumptionDetails[i].Contains(textToSearch))
+                {
+                    lineToCheck = consumptionDetails[i];
+                    break;
+                }
+            }
+
+            return lineToCheck;
+        }
+
+        // This method will be used to obtain the consumption amount from "This reading" or
+        // the "Last reading" lines. Only call this method once you have obtained valid text
+        // after calling the getConsumptionDetails method and the getThisOrLastReadingLine method, 
+        // the string array returned from the former should be passed as a parameter into the latter, then
+        // the line returned from the latter method should be passed as a parameter into lineToCheck
+
+        public static int getReadingAmount(string lineToCheck, string textToSearch)
+        {
+            int readingAmount = 0;
+            string relevantTextData = "";
+            string readingAmountStr = "";
+
+            // lineToCheck should be equal to something like this:
+            // This reading 10-Feb-2017 3633 Estimate
+
+            // Assuming the length of the substring we need to work with, is '11' because
+            // the date format on the pdf is as follows: DD-MMM-YY\s
+            // \s is a white space character, the last index the substring falls on is excluded
+            // hence we must make sure that starting index for the substring does not include
+            // any numeric digits that are part of the reading date, hence we add '11', not '10'
+            // to the length of textToSearch
+            if (!lineToCheck.Equals(""))
+            {
+                relevantTextData = lineToCheck.Substring(textToSearch.Length + 11).Trim();
+
+                // Using regular expression to replace all non numeric characters in the substring with
+                // nothing
+
+                readingAmountStr = Regex.Replace(relevantTextData, @"[^\d+]", "").Trim();
+
+                if (!readingAmountStr.Equals(""))
+                {
+                    if (Int32.TryParse(readingAmountStr, out readingAmount))
+                    {
+                        readingAmount = Int32.Parse(readingAmountStr);
+                    }
+                }
+            }
+
+            return readingAmount;
+        }
+
+        // This method will be used to determine whether the reading amounts from "This reading" or
+        // the "Last reading" lines are "Estimate" or "Actual". Only call this method once you have obtained 
+        // valid text after calling the getConsumptionDetails method and the getThisOrLastReadingLine method, 
+        // the string array returned from the former should be passed as a parameter into the latter, then
+        // the line returned from the latter method should be passed as a parameter into lineToCheck
+
+        public static string getReadingAmountType(string lineToCheck)
+        {
+            string result = "";
+
+            if (lineToCheck.Contains("Estimate"))
+                result = "Estimate";
+            else if (lineToCheck.Contains("Actual"))
+                result = "Actual";
+            else
+                result = "Not found";
+
+            return result;
+        }
+
+        // This method is used to obtain the wastewater percentage. Make sure to call the
+        // getConsumptionDetails method first before calling this method. Pass in the string
+        // array returned by getConsumptionDetails as a parameter into this method here
+
+        public static double getWasteWaterPercent(string[] consumptionDetails)
+        {
+            string lineToCheck = "";
+            string relevantTextData = "";
+            string wasteWaterPercentStr = "";
+            double wasteWaterPercent = 0;
+
+            for (int i = 0; i < consumptionDetails.Length; i++)
+            {
+                if (consumptionDetails[i].Contains("Wastewater") && consumptionDetails[i].Contains('@') &&
+                    consumptionDetails[i].Contains('%'))
+                {
+                    lineToCheck = consumptionDetails[i];
+                    break;
+                }
+            }
+
+            // lineToCheck should look something like this:
+            // Wastewater @78.50% 5.50 kL
+            if (!lineToCheck.Equals(""))
+            {
+                relevantTextData = lineToCheck.Substring(lineToCheck.IndexOf('@'), (lineToCheck.IndexOf('%') - lineToCheck.IndexOf('@'))).Trim();
+                wasteWaterPercentStr = Regex.Replace(relevantTextData, @"[^\d+|\.\-]", "");
+
+                if (!wasteWaterPercentStr.Equals(""))
+                {
+                    if (Double.TryParse(wasteWaterPercentStr, out wasteWaterPercent))
+                    {
+                        wasteWaterPercent = Double.Parse(wasteWaterPercentStr);
+                    }
+                }
+            }
+
+            return wasteWaterPercent;
+        }
+
+        // This method is used to obtain the Water or WasteWater line from the Charge Details section
+        // of the watercare invoice. The textToSearch parameter should be made equal to either "Water"
+        // or "Wastewater", depending on which line of text you would like to obtain
+
+        public static string getBackUpWaterDetails(string[] pdftext, string textToSearch)
+        {
+            string lineNeeded = "";
+            for (int i = 0; i < pdftext.Length; i++)
+            {
+                if (pdftext[i].Contains(textToSearch) && pdftext[i].Contains("/kL") && pdftext[i].Contains("$"))
+                {
+                    lineNeeded = pdftext[i];
+
+                    // This checks whether the next line of text contains another Water or Wastewater line, if so
+                    // then simply return the text "Rates Revised", as this was a requirement mentioned by the client
+
+                    if (pdftext[i + 1].Contains(textToSearch) && pdftext[i].Contains("/kL") && pdftext[i].Contains("$"))
+                    {
+                        lineNeeded = "Rates Revised";
+                    }
+                    break;
+                }
+            }
+
+            if (lineNeeded.Equals(""))
+                lineNeeded = "error not water details";
+
+            return lineNeeded;
+        }
+
+        // This method is used to obtain the unit rate for the water and wastewater
+        // Call this method after obtaining a string from the getBackUpWaterDetails method
+
+        public static string getUnitRate(string waterOrWasteWaterLine)
+        {
+            string rate = "";
+            if ((!waterOrWasteWaterLine.Equals("Rates Revised")) && (!waterOrWasteWaterLine.Equals("error not water details")))
+            {
+                rate = waterOrWasteWaterLine.Split('$')[1].Split('/')[0];
+            }
+            else if (waterOrWasteWaterLine.Equals("Rates Revised"))
+            {
+                rate = waterOrWasteWaterLine;
+            }
+            return rate;
+        }
+
+        // This method is used to obtain the water and wastewater consumption in kL
+        // Call this method after obtaining a string from the getBackUpWaterDetails method
+
+        public static string getWaterConsumption(string waterOrWasteWaterLine, string textToSearch)
+        {
+            string consumption = "";
+            if ((!waterOrWasteWaterLine.Equals("Rates Revised")) && (!waterOrWasteWaterLine.Equals("error not water details")))
+            {
+                consumption = waterOrWasteWaterLine.Split("kL".ToCharArray())[0].Substring(textToSearch.Length).Trim();
+
+                // This if statement checks whether a single water or wastewater line contains a date enclosed within brackets since
+                // some pdf's do. If so, then simply use a substring to omit the date enclosed within the rounded brackets and then
+                // replace the closing rounded bracket ')' with nothing
+
+                if (consumption.Contains(")"))
+                {
+                    consumption = consumption.Substring(consumption.LastIndexOf(")")).Replace(")", "").Trim();
+                }
+            }
+            else if (waterOrWasteWaterLine.Equals("Rates Revised"))
+            {
+                consumption = waterOrWasteWaterLine;
+            }
+            return consumption;
+        }
+
+        // This method is used to obtain the water and wastewater costs from the details section
+        // Call this method after obtaining a string from the getBackUpWaterDetails method
+
+        public static string getWaterDetailsCost(string waterOrWasteWaterLine)
+        {
+            string cost = "";
+            if ((!waterOrWasteWaterLine.Equals("Rates Revised")) && (!waterOrWasteWaterLine.Equals("error not water details")))
+            {
+                cost = waterOrWasteWaterLine.Substring(waterOrWasteWaterLine.LastIndexOf('$')).Replace("$", "").Trim();
+            }
+            else if (waterOrWasteWaterLine.Equals("Rates Revised"))
+            {
+                cost = waterOrWasteWaterLine;
+            }
+            return cost;
+        }
+
+        // This method is used to obtain the total water consumption figure in kL
+        // from the details section
+        // Only call this method once you have called the getConsumptionDetails method
+        // and have obtained its string array
+        // Additionally, this method should only be used if there are multiple lines
+        // for the water and wastewater fields in the details section i.e. Rates Revised
+
+        public static string getOnlyWaterConsumption(string[] consumptionDetails)
+        {
+            string lineToCheck = "";
+            string relevantTextData = "";
+            string waterConsumptionStr = "";
+            double waterConsumption = 0;
+            string waterConsumptionStrFinal = "";
+
+            for (int i = 0; i < consumptionDetails.Length; i++)
+            {
+                if ((consumptionDetails[i].Contains("Consumption")) && (consumptionDetails[i].Contains("kL")))
+                {
+                    lineToCheck = consumptionDetails[i];
+                    break;
+                }
+            }
+
+            if (!lineToCheck.Equals(""))
+            {
+                relevantTextData = lineToCheck.Substring("Consumption".Length, (lineToCheck.IndexOf("kL") - "Consumption".Length)).Trim();
+                waterConsumptionStr = Regex.Replace(relevantTextData, @"[^\d+|\.\-]", "");
+
+                if (!waterConsumptionStr.Equals(""))
+                {
+                    if (Double.TryParse(waterConsumptionStr, out waterConsumption))
+                    {
+                        waterConsumption = Double.Parse(waterConsumptionStr);
+                        waterConsumptionStrFinal = waterConsumption.ToString("0.00");
+                    }
+                }
+            }
+            return waterConsumptionStrFinal;
         }
     }
 

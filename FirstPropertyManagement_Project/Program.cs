@@ -19,7 +19,7 @@ namespace FirstPropertyManagement_Project
             {
                 
                 //Testing
-                string folderpath = @"C:\2015 FPM_pdf_files";
+                string folderpath = @"C:\FPM_pdf_files";
                 // Be sure to update folderpath to match your directory!
                 string currentFilePath = "";
                 string fileName="";
@@ -29,7 +29,7 @@ namespace FirstPropertyManagement_Project
                 IEnumerator files = Directory.GetFiles(folderpath).GetEnumerator();
 
                 List<string> accountNumbersList = new List<string>();
-                List<double> wasteWaterCostsList = new List<double>();
+                List<double> fixedWasteWaterCostsList = new List<double>();
                 List<double> totalCostsList = new List<double>();
                 List<string> propertyLocationsList = new List<string>();
                 List<string> accountTypesList = new List<string>();
@@ -37,6 +37,18 @@ namespace FirstPropertyManagement_Project
                 List<string> thisReadingDatesList = new List<string>();
                 List<string> lastReadingDatesList = new List<string>();
                 List<double> chargeTenantList = new List<double>();
+                List<string> invoiceDatesList = new List<string>();
+                List<int> thisReadingAmountList = new List<int>();
+                List<int> lastReadingAmountList = new List<int>();
+                List<string> thisReadingAmountTypeList = new List<string>();
+                List<string> lastReadingAmountTypeList = new List<string>();
+                List<double> wasteWaterPercentageList = new List<double>();
+                List<string> waterRateList = new List<string>();
+                List<string> wasteWaterRateList = new List<string>();
+                List<string> waterConsumptionList = new List<string>();
+                List<string> wasteWaterConsumptionList = new List<string>();
+                List<string> waterCostsList = new List<string>();
+                List<string> wasteWaterCostsList = new List<string>();
 
                 while (files.MoveNext())
                 {
@@ -62,6 +74,21 @@ namespace FirstPropertyManagement_Project
                         string lastReadingDate="";
                         string[] chargeDetails = null;
                         string[] consumptionDetails = null;
+                        string invoiceDate = "";
+                        //string invoiceDateOutput = "";
+                        string thisReadingLine = "";
+                        string lastReadingLine = "";
+                        int thisReading = 0;
+                        int lastReading = 0;
+                        string thisReadingType = "";
+                        string lastReadingType = "";
+                        double wasteWaterPercentage = 0;
+                        string waterRate = "";
+                        string wasteWaterRate = "";
+                        string waterConsumption = "";
+                        string wasteWaterConsumption = "";
+                        string waterDetailsCost = "";
+                        string wasteWaterDetailsCost = "";
                         ArrayList pdftexts = ScanningPDF_methods.ReadPdfFileArrayList(currentFilePath);
                         object[] textsArray = pdftexts.ToArray(); // There should only be 2 pages
 
@@ -86,12 +113,13 @@ namespace FirstPropertyManagement_Project
 
                             if (i == 0) // First page
                             {
-                                wasteWaterCost = 0;//ScanningPDF_methods.getRelevantCharges(linesOfText, "Wastewater fixed charges", "There is no overdue fixed charges");
-                                totalCost = 0;// ScanningPDF_methods.getRelevantCharges(linesOfText, "Balance of current charges", "Balance still owing, now overdue");
+                                wasteWaterCost = ScanningPDF_methods.getRelevantCharges(linesOfText, "Wastewater fixed charges", "There is no overdue fixed charges");
+                                totalCost = ScanningPDF_methods.getRelevantCharges(linesOfText, "Balance of current charges", "Balance still owing, now overdue");
                                 propertyLocation = ScanningPDF_methods.getRelevantTextData(linesOfText, "Property location");
                                 accountType = ScanningPDF_methods.getRelevantTextData(linesOfText, "Account type");
-                                dueDate = "Due date not found";//ScanningPDF_methods.getDueDate(linesOfText);
-                                accountNumber = null;//ScanningPDF_methods.getAccountNumber(linesOfText);
+                                dueDate = ScanningPDF_methods.getDueOrInvoiceDate(linesOfText, 1);
+                                accountNumber = ScanningPDF_methods.getAccountNumber(linesOfText);
+                                invoiceDate = ScanningPDF_methods.getDueOrInvoiceDate(linesOfText, 0);
                                 //Console.WriteLine("Account Number is: " + accountNumber);
                                 //Console.WriteLine("Waste water cost equals: " + wasteWaterCost.ToString("0.00"));
                                 //Console.WriteLine("Total cost equals: " + totalCost.ToString("0.00"));
@@ -99,7 +127,7 @@ namespace FirstPropertyManagement_Project
                                 //Console.WriteLine("Account Type is: " + accountType);
                                 //Console.WriteLine("Due date is: " + dueDate);
 
-                                if(accountNumber == null)
+                                if (accountNumber == null)
                                 {
                                     accountNumber = ScanningPDF_methods.backupGetAccountMethod(linesOfText);
                                 }
@@ -109,20 +137,36 @@ namespace FirstPropertyManagement_Project
                                     totalCost = ScanningPDF_methods.getTotalCostBackup(linesOfText, propertyLocation);
                                 }
 
-                                if (dueDate.Equals("") || dueDate.Equals("Due date not found"))
+                                if (dueDate.Equals("") || dueDate.Equals("Correct date not found"))
                                 {
                                     dueDate = ScanningPDF_methods.getDueDateBackup(linesOfText, propertyLocation);
+                                }
+
+                                if (invoiceDate.Equals("") || invoiceDate.Equals("Correct date not found"))
+                                {
+                                    invoiceDate = "Need to add backup method";//getDueDateBackup(linesOfText, propertyLocation);
+                                    //invoiceDateOutput = String.Empty;
+                                    //invoiceDateOutput = "Need to add backup method";
                                 }
 
                             }
                             else if (i == 1) // Second page
                             {
-                                thisReadingDate = null; ScanningPDF_methods.getReadingDates(linesOfText, "This reading");
-                                lastReadingDate = null;// ScanningPDF_methods.getReadingDates(linesOfText, "Last reading");
+                                thisReadingDate = ScanningPDF_methods.getReadingDates(linesOfText, "This reading");
+                                lastReadingDate = ScanningPDF_methods.getReadingDates(linesOfText, "Last reading");
                                 chargeDetails = ScanningPDF_methods.getChargeDetails(linesOfText, "Charge details", "Consumption details");
                                 consumptionDetails = ScanningPDF_methods.getConsumptionDetails(linesOfText, "Consumption details", "Wastewater");
                                 //Console.WriteLine("This reading date equals: " + thisReadingDate);
                                 // Console.WriteLine("The last reading date equals: " + lastReadingDate);
+                                thisReadingLine = ScanningPDF_methods.getThisOrLastReadingLine(consumptionDetails, "This reading");
+                                lastReadingLine = ScanningPDF_methods.getThisOrLastReadingLine(consumptionDetails, "Last reading");
+                                thisReading = ScanningPDF_methods.getReadingAmount(thisReadingLine, "This reading");
+                                lastReading = ScanningPDF_methods.getReadingAmount(lastReadingLine, "Last reading");
+                                thisReadingType = ScanningPDF_methods.getReadingAmountType(thisReadingLine);
+                                lastReadingType = ScanningPDF_methods.getReadingAmountType(lastReadingLine);
+                                wasteWaterPercentage = ScanningPDF_methods.getWasteWaterPercent(consumptionDetails);
+                                string waterDetailsLine = ScanningPDF_methods.getBackUpWaterDetails(chargeDetails, "Water");
+                                string wasteWaterDetailsLine = ScanningPDF_methods.getBackUpWaterDetails(chargeDetails, "Wastewater");
 
                                 if (wasteWaterCost == 0)
                                 {
@@ -137,6 +181,29 @@ namespace FirstPropertyManagement_Project
                                 if (lastReadingDate == null)
                                 {
                                     lastReadingDate = ScanningPDF_methods.backupThisReadingMethod(linesOfText, 1);
+                                }
+
+                                if (waterDetailsLine.Equals("error not water details"))
+                                {
+                                    waterRate = "Need backup method for water line";
+                                }
+
+                                if (wasteWaterDetailsLine.Equals("error not water details"))
+                                {
+                                    wasteWaterRate = "Need backup method for wastewater line";
+                                }
+
+                                waterRate = ScanningPDF_methods.getUnitRate(waterDetailsLine);
+                                wasteWaterRate = ScanningPDF_methods.getUnitRate(wasteWaterDetailsLine);
+                                waterConsumption = ScanningPDF_methods.getWaterConsumption(waterDetailsLine, "Water");
+                                wasteWaterConsumption = ScanningPDF_methods.getWaterConsumption(wasteWaterDetailsLine, "Wastewater");
+                                waterDetailsCost = ScanningPDF_methods.getWaterDetailsCost(waterDetailsLine);
+                                wasteWaterDetailsCost = ScanningPDF_methods.getWaterDetailsCost(wasteWaterDetailsLine);
+
+                                if (waterConsumption.Equals("Rates Revised"))
+                                {
+                                    waterConsumption = String.Empty;
+                                    waterConsumption = ScanningPDF_methods.getOnlyWaterConsumption(consumptionDetails);
                                 }
 
                             }
@@ -157,15 +224,18 @@ namespace FirstPropertyManagement_Project
                         sw.WriteLine("Report of Extracted data from " + fileNameNoExtension +
                                         " for the use of First Property Management");
                         sw.WriteLine("Account number is: " + accountNumber);
-                        sw.WriteLine("Waste water cost equals: " + wasteWaterCost.ToString("0.00"));
+                        sw.WriteLine("Fixed waste water cost equals: " + wasteWaterCost.ToString("0.00"));
                         sw.WriteLine("Total cost equals: " + totalCost.ToString("0.00"));
                         sw.WriteLine("Property Location is: " + propertyLocation);
                         sw.WriteLine("Account Type is: " + accountType);
+                        sw.WriteLine("Invoice date is: " + invoiceDate);
                         sw.WriteLine("Due date is: " + dueDate);
                         sw.WriteLine("This reading date equals: " + thisReadingDate);
                         sw.WriteLine("The last reading date equals: " + lastReadingDate);
                         sw.WriteLine("Amount to charge tenant is $" + amountToCharge.ToString("0.00"));
                         sw.WriteLine("---------------------------------------");
+                        sw.WriteLine("The following text contains information from the 'Details' section");
+                        sw.WriteLine("\n");
                         for (int j = 0; j < chargeDetails.Length; j++)
                         {
                             sw.WriteLine(chargeDetails[j]);
@@ -175,10 +245,22 @@ namespace FirstPropertyManagement_Project
                         {
                             sw.WriteLine(consumptionDetails[j]);
                         }
+                        sw.WriteLine("---------------------------------------");
+                        sw.WriteLine("This reading consumption amount equals: " + thisReading);
+                        sw.WriteLine("This reading consumption amount is an '" + thisReadingType + "' value");
+                        sw.WriteLine("The last reading consumption amount equals: " + lastReading);
+                        sw.WriteLine("The last reading consumption amount is an '" + lastReadingType + "' value");
+                        sw.WriteLine("The wastewater percentage equals: " + wasteWaterPercentage.ToString("0.00") + "%");
+                        sw.WriteLine("The water unit rate equals: " + waterRate);
+                        sw.WriteLine("The wastewater unit rate equals: " + wasteWaterRate);
+                        sw.WriteLine("The water consumption equals: " + waterConsumption);
+                        sw.WriteLine("The wastewater consumption equals: " + wasteWaterConsumption);
+                        sw.WriteLine("The water details cost equals: " + waterDetailsCost);
+                        sw.WriteLine("The wastewater details cost equals: " + wasteWaterDetailsCost);
                         sw.Close();
 
                         accountNumbersList.Add(accountNumber);
-                        wasteWaterCostsList.Add(wasteWaterCost);
+                        fixedWasteWaterCostsList.Add(wasteWaterCost);
                         totalCostsList.Add(totalCost);
                         propertyLocationsList.Add(propertyLocation);
                         accountTypesList.Add(accountType);
@@ -186,11 +268,46 @@ namespace FirstPropertyManagement_Project
                         thisReadingDatesList.Add(thisReadingDate);
                         lastReadingDatesList.Add(lastReadingDate);
                         chargeTenantList.Add(amountToCharge);
+                        invoiceDatesList.Add(invoiceDate);
+                        thisReadingAmountList.Add(thisReading);
+                        lastReadingAmountList.Add(lastReading);
+                        thisReadingAmountTypeList.Add(thisReadingType);
+                        lastReadingAmountTypeList.Add(lastReadingType);
+                        wasteWaterPercentageList.Add(wasteWaterPercentage);
+                        waterRateList.Add(waterRate);
+                        wasteWaterRateList.Add(wasteWaterRate);
+                        waterConsumptionList.Add(waterConsumption);
+                        wasteWaterConsumptionList.Add(wasteWaterConsumption);
+                        waterCostsList.Add(waterDetailsCost);
+                        wasteWaterCostsList.Add(wasteWaterDetailsCost);
                     }
                 }
-                string excelFileReport = ExcelGeneration.generateExcelFileReport(folderpath, accountNumbersList.ToArray(), wasteWaterCostsList.ToArray(),
-                    totalCostsList.ToArray(), propertyLocationsList.ToArray(), accountTypesList.ToArray(), dueDatesList.ToArray(),
-                    thisReadingDatesList.ToArray(), lastReadingDatesList.ToArray(), chargeTenantList.ToArray());
+                string excelFileReport = ExcelGeneration.generateExcelFileReport(folderpath, accountNumbersList.ToArray(), fixedWasteWaterCostsList.ToArray(), totalCostsList.ToArray(),
+                    propertyLocationsList.ToArray(), accountTypesList.ToArray(), invoiceDatesList.ToArray(), dueDatesList.ToArray(), thisReadingDatesList.ToArray(), lastReadingDatesList.ToArray(),
+                    chargeTenantList.ToArray(), thisReadingAmountList.ToArray(), lastReadingAmountList.ToArray(), thisReadingAmountTypeList.ToArray(), lastReadingAmountTypeList.ToArray(), wasteWaterPercentageList.ToArray(),
+                    waterRateList.ToArray(), wasteWaterRateList.ToArray(), waterConsumptionList.ToArray(), wasteWaterConsumptionList.ToArray(), waterCostsList.ToArray(), wasteWaterCostsList.ToArray());
+
+                accountNumbersList.Clear();
+                fixedWasteWaterCostsList.Clear();
+                totalCostsList.Clear();
+                propertyLocationsList.Clear();
+                accountTypesList.Clear();
+                dueDatesList.Clear();
+                thisReadingDatesList.Clear();
+                lastReadingDatesList.Clear();
+                chargeTenantList.Clear();
+                invoiceDatesList.Clear();
+                thisReadingAmountList.Clear();
+                lastReadingAmountList.Clear();
+                thisReadingAmountTypeList.Clear();
+                lastReadingAmountTypeList.Clear();
+                wasteWaterPercentageList.Clear();
+                waterRateList.Clear();
+                wasteWaterRateList.Clear();
+                waterConsumptionList.Clear();
+                wasteWaterConsumptionList.Clear();
+                waterCostsList.Clear();
+                wasteWaterCostsList.Clear();
 
             }
             catch (IOException e)
