@@ -132,6 +132,7 @@ namespace FirstPropertyManagement_Project
 
                 // Set some extended property values
                 package.Workbook.Properties.Company = "First Property Management";
+                package.Workbook.Properties.Manager = "Mohijit Sengupta, Jolene Munro";
                 package.Save();
 
             }
