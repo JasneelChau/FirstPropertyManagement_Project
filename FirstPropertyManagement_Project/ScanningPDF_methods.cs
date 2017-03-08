@@ -230,7 +230,7 @@ namespace FirstPropertyManagement_Project
 
             if (relevantTextData.Equals(""))
             {
-                relevantTextData = null;
+                relevantTextData = textToSearch + " Not found";
             }
 
             return relevantTextData;
@@ -857,6 +857,11 @@ namespace FirstPropertyManagement_Project
             {
                 rate = waterOrWasteWaterLine;
             }
+            else if(waterOrWasteWaterLine.Equals("error not water details"))
+            {
+                rate = "Unit rate not found";
+            }
+                
             return rate;
         }
 
@@ -883,6 +888,10 @@ namespace FirstPropertyManagement_Project
             {
                 consumption = waterOrWasteWaterLine;
             }
+            else if (waterOrWasteWaterLine.Equals("error not water details"))
+            {
+                consumption = textToSearch + " not found";
+            }
             return consumption;
         }
 
@@ -899,6 +908,10 @@ namespace FirstPropertyManagement_Project
             else if (waterOrWasteWaterLine.Equals("Rates Revised"))
             {
                 cost = waterOrWasteWaterLine;
+            }
+            else if (waterOrWasteWaterLine.Equals("error not water details"))
+            {
+                cost = "Cost not found";
             }
             return cost;
         }

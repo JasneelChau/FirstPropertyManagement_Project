@@ -34,10 +34,10 @@ namespace FirstPropertyManagement_Project
                         cmd.Connection = connection;
                         cmd.Parameters.AddWithValue("@ACCOUNT_ID", accountNumber);
                         cmd.ExecuteNonQuery();
-
+                        
                         using (MySqlDataReader myReader = cmd.ExecuteReader())
                         {
-
+                               
                             if (myReader.HasRows)
                             {
                                 while (myReader.Read())
