@@ -15,7 +15,7 @@ namespace FirstPropertyManagement_Project
 
         // This is really slow, maybe don't use ref variables and just return a string array?
 
-        public static void getAdditionalDetails(string accountNumber, ref string r_Via, ref string payee, ref string tenantName,
+        public static void getAdditionalDetails(string accountNumber, ref string r_Via, ref string payee, ref string tenantName, 
             ref string tenant_Dr, ref string procedure, ref string to_Tnt_Via, ref string ownerFee, ref string ownerName)
         {
             if ((accountNumber != null) && ((!accountNumber.Equals("")) || (!accountNumber.Equals("Account Number not found"))))
