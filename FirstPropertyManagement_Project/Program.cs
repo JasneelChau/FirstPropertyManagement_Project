@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SystemIOPath = System.IO.Path;
+using MySql.Data.MySqlClient;
 
 namespace FirstPropertyManagement_Project
 {
@@ -19,7 +20,7 @@ namespace FirstPropertyManagement_Project
             {
                 
                 //Testing
-                string folderpath = @"C:\FPM_pdf_files";
+                string folderpath = @"C:\2015 FPM_pdf_files";
                 // Be sure to update folderpath to match your directory!
                 string currentFilePath = "";
                 string fileName="";
@@ -49,6 +50,14 @@ namespace FirstPropertyManagement_Project
                 List<string> wasteWaterConsumptionList = new List<string>();
                 List<string> waterCostsList = new List<string>();
                 List<string> wasteWaterCostsList = new List<string>();
+                List<string> rViaList = new List<string>();
+                List<string> whoPaysList = new List<string>();
+                List<string> tenantNameList = new List<string>();
+                List<string> tenantDRList = new List<string>();
+                List<string> procedureList = new List<string>();
+                List<string> toTenantViaList = new List<string>();
+                List<string> ownerFeeList = new List<string>();
+                List<string> ownerNameList = new List<string>();
 
                 while (files.MoveNext())
                 {
@@ -89,6 +98,15 @@ namespace FirstPropertyManagement_Project
                         string wasteWaterConsumption = "";
                         string waterDetailsCost = "";
                         string wasteWaterDetailsCost = "";
+                        string receiveVia = "";
+                        string payee = "";
+                        string tenantName = "";
+                        string tenantDR = "";
+                        string procedure = "";
+                        string toTenantVia = "";
+                        string ownerFee = "";
+                        string ownerName = "";
+                        //string[] additionalDatabaseDetails = null;
                         ArrayList pdftexts = ScanningPDF_methods.ReadPdfFileArrayList(currentFilePath);
                         object[] textsArray = pdftexts.ToArray(); // There should only be 2 pages
 
@@ -214,6 +232,12 @@ namespace FirstPropertyManagement_Project
 
                         }
 
+                        DatabaseExtraction_methods.getAdditionalDetails(accountNumber, ref receiveVia, ref payee, ref tenantName,
+                        ref tenantDR, ref procedure, ref toTenantVia, ref ownerFee, ref ownerName);
+
+                        // Heemesh's method which returns a string array
+                        //additionalDatabaseDetails = DatabaseExtraction_methods.getAdditionalDetails(accountNumber);
+
                         // The bool parameter needs to updated according to procedure field from database
                         double amountToCharge = ScanningPDF_methods.calculateChargeTenantAmount(totalCost, wasteWaterCost, true);
 
@@ -223,14 +247,14 @@ namespace FirstPropertyManagement_Project
                                         " for the use of First Property Management");
                         sw.WriteLine("Account number is: " + accountNumber);
                         sw.WriteLine("Fixed waste water cost equals: " + wasteWaterCost.ToString("0.00"));
-                        sw.WriteLine("Total cost equals: " + totalCost.ToString("0.00"));
+                        sw.WriteLine("Invoice amount (Total amount from watercare invoice) equals: " + totalCost.ToString("0.00"));
                         sw.WriteLine("Property Location is: " + propertyLocation);
                         sw.WriteLine("Account Type is: " + accountType);
                         sw.WriteLine("Invoice date is: " + invoiceDate);
                         sw.WriteLine("Due date is: " + dueDate);
                         sw.WriteLine("This reading date equals: " + thisReadingDate);
                         sw.WriteLine("The last reading date equals: " + lastReadingDate);
-                        sw.WriteLine("Amount to charge tenant is $" + amountToCharge.ToString("0.00"));
+                        sw.WriteLine("Amount to charge tenant (Total Vol. Charges) is $" + amountToCharge.ToString("0.00"));
                         sw.WriteLine("---------------------------------------");
                         sw.WriteLine("The following text contains information from the 'Details' section");
                         sw.WriteLine("\n");
@@ -255,6 +279,25 @@ namespace FirstPropertyManagement_Project
                         sw.WriteLine("The wastewater consumption equals: " + wasteWaterConsumption);
                         sw.WriteLine("The water details cost equals: " + waterDetailsCost);
                         sw.WriteLine("The wastewater details cost equals: " + wasteWaterDetailsCost);
+                        sw.WriteLine("***************************************");
+                        sw.WriteLine("The following contains information from the Database");
+                        sw.WriteLine("\n");
+                        /*sw.WriteLine("Received via: " + additionalDatabaseDetails[0]);
+                        sw.WriteLine("Who pays: " + additionalDatabaseDetails[1]);
+                        sw.WriteLine("Tenant name: " + additionalDatabaseDetails[2]);
+                        sw.WriteLine("Tenant DR: " + additionalDatabaseDetails[3]);
+                        sw.WriteLine("Procedure followed: " + additionalDatabaseDetails[4]);
+                        sw.WriteLine("To Tenant Via: " + additionalDatabaseDetails[5]);
+                        sw.WriteLine("Owner fee: " + additionalDatabaseDetails[6]);
+                        sw.WriteLine("Owner name: " + additionalDatabaseDetails[7]);*/
+                        sw.WriteLine("Received via: " + receiveVia);
+                        sw.WriteLine("Who pays: " + payee);
+                        sw.WriteLine("Tenant name: " + tenantName);
+                        sw.WriteLine("Tenant DR: " + tenantDR);
+                        sw.WriteLine("Procedure followed: " + procedure);
+                        sw.WriteLine("To Tenant Via: " + toTenantVia);
+                        sw.WriteLine("Owner fee: " + ownerFee);
+                        sw.WriteLine("Owner name: " + ownerName);
                         sw.Close();
 
                         accountNumbersList.Add(accountNumber);
@@ -278,12 +321,21 @@ namespace FirstPropertyManagement_Project
                         wasteWaterConsumptionList.Add(wasteWaterConsumption);
                         waterCostsList.Add(waterDetailsCost);
                         wasteWaterCostsList.Add(wasteWaterDetailsCost);
+                        rViaList.Add(receiveVia);
+                        whoPaysList.Add(payee);
+                        tenantNameList.Add(tenantName);
+                        tenantDRList.Add(tenantDR);
+                        procedureList.Add(procedure);
+                        toTenantViaList.Add(toTenantVia);
+                        ownerFeeList.Add(ownerFee);
+                        ownerNameList.Add(ownerName);
                     }
                 }
                 string excelFileReport = ExcelGeneration.generateExcelFileReport(folderpath, accountNumbersList.ToArray(), fixedWasteWaterCostsList.ToArray(), totalCostsList.ToArray(),
                     propertyLocationsList.ToArray(), accountTypesList.ToArray(), invoiceDatesList.ToArray(), dueDatesList.ToArray(), thisReadingDatesList.ToArray(), lastReadingDatesList.ToArray(),
                     chargeTenantList.ToArray(), thisReadingAmountList.ToArray(), lastReadingAmountList.ToArray(), thisReadingAmountTypeList.ToArray(), lastReadingAmountTypeList.ToArray(), wasteWaterPercentageList.ToArray(),
-                    waterRateList.ToArray(), wasteWaterRateList.ToArray(), waterConsumptionList.ToArray(), wasteWaterConsumptionList.ToArray(), waterCostsList.ToArray(), wasteWaterCostsList.ToArray());
+                    waterRateList.ToArray(), wasteWaterRateList.ToArray(), waterConsumptionList.ToArray(), wasteWaterConsumptionList.ToArray(), waterCostsList.ToArray(), wasteWaterCostsList.ToArray(), rViaList.ToArray(), whoPaysList.ToArray(),
+                    tenantNameList.ToArray(), tenantDRList.ToArray(), procedureList.ToArray(), toTenantViaList.ToArray(), ownerFeeList.ToArray(), ownerNameList.ToArray());
 
                 accountNumbersList.Clear();
                 fixedWasteWaterCostsList.Clear();
@@ -306,6 +358,14 @@ namespace FirstPropertyManagement_Project
                 wasteWaterConsumptionList.Clear();
                 waterCostsList.Clear();
                 wasteWaterCostsList.Clear();
+                rViaList.Clear();
+                whoPaysList.Clear();
+                tenantNameList.Clear();
+                tenantDRList.Clear();
+                procedureList.Clear();
+                toTenantViaList.Clear();
+                ownerFeeList.Clear();
+                ownerNameList.Clear();
 
             }
             catch (IOException e)

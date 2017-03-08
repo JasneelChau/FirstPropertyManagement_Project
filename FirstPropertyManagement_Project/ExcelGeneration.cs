@@ -12,12 +12,12 @@ namespace FirstPropertyManagement_Project
 {
     class ExcelGeneration
     {
-
         public static string generateExcelFileReport(string folderpath, string[] accountNums, double[] fixedWasteWaterCosts,
             double[] totalCosts, string[] propertyLocations, string[] accountTypes, string[] invoiceDates, string[] dueDates, string[] thisReadingDates,
             string[] lastReadingDates, double[] chargesForEachTenant, int[] thisReadingAmounts, int[] lastReadingAmounts, string[] thisReadingAmountTypes,
             string[] lastReadingAmountTypes, double[] wasteWaterPercentages, string[] waterUnitRates, string[] wasteWaterUnitRates, string[] waterConsumptions,
-            string[] wasteWaterConsumptions, string[] waterCosts, string[] wasteWaterCosts)
+            string[] wasteWaterConsumptions, string[] waterCosts, string[] wasteWaterCosts, string[] rVias, string[] whoPays, string[] tenantNames, string[] tenantDRs,
+            string[] procedures, string[] toTenantVias, string[] ownerFees, string[] ownerNames)
         {
             DateTime currentDate = DateTime.Now.Date;
             FileInfo newFile = new FileInfo(folderpath + @"\Overall Scanned Report.xlsx");
@@ -34,9 +34,9 @@ namespace FirstPropertyManagement_Project
                 // Rows and column indices not indexed at zero!
 
                 // Add a merged header title
-                worksheet.Cells[1, 1, 1, 22].Merge = true;
-                worksheet.Cells[1, 1, 1, 22].Value = "Overall Extracted Data for the use of First Property Management";
-                worksheet.Cells[1, 1, 1, 22].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[1, 1, 1, 27].Merge = true;
+                worksheet.Cells[1, 1, 1, 27].Value = "Overall Extracted Data for the use of First Property Management";
+                worksheet.Cells[1, 1, 1, 27].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
 
                 // Add the column titles
                 worksheet.Cells[2, 1].Value = "Current Date";
@@ -61,7 +61,12 @@ namespace FirstPropertyManagement_Project
                 worksheet.Cells[2, 20].Value = "Rate";
                 worksheet.Cells[2, 21].Value = "Vol. Waste Water $";
                 worksheet.Cells[2, 22].Value = "Total Vol. Chgs $"; // This column holds the (total cost - fixed waste water charges) amount
-
+                worksheet.Cells[2, 23].Value = "R Via";
+                worksheet.Cells[2, 24].Value = "Tenant DR";
+                worksheet.Cells[2, 25].Value = "Procedure";
+                worksheet.Cells[2, 26].Value = "To Tenant Via";
+                worksheet.Cells[2, 27].Value = "Owner Fee";
+               
                 // Format the cells 
                 worksheet.Cells["G3:G" + accountNums.Length + 2].Style.Numberformat.Format = "#,##0.00";
                 worksheet.Cells["V3:V" + accountNums.Length + 2].Style.Numberformat.Format = "#,##0.00";
@@ -74,13 +79,13 @@ namespace FirstPropertyManagement_Project
                 {
                     worksheet.Cells[i, 1].Value = currentDate.ToShortDateString();
                     worksheet.Cells[i, 2].Value = propertyLocations[i - 3];
-                    worksheet.Cells[i, 3].Value = "";
+                    worksheet.Cells[i, 3].Value = ownerNames[i-3];
                     worksheet.Cells[i, 4].Value = accountNums[i - 3];
-                    worksheet.Cells[i, 5].Value = "";
+                    worksheet.Cells[i, 5].Value = whoPays[i - 3];
                     worksheet.Cells[i, 6].Value = invoiceDates[i - 3];
                     worksheet.Cells[i, 7].Value = totalCosts[i-3];
                     //worksheet.Cells[i, 7].Formula = "=DATEVALUE("+ thisReadingDates[i - 3] +")";
-                    worksheet.Cells[i, 8].Value = "";
+                    worksheet.Cells[i, 8].Value = tenantNames[i-3];
                     //worksheet.Cells[i, 8].Formula = "=DATEVALUE(" + lastReadingDates[i - 3] + ")";
                     worksheet.Cells[i, 9].Value = lastReadingDates[i - 3];
                     worksheet.Cells[i, 10].Value = thisReadingDates[i - 3];
@@ -95,11 +100,16 @@ namespace FirstPropertyManagement_Project
                     worksheet.Cells[i, 19].Value = wasteWaterConsumptions[i - 3];
                     worksheet.Cells[i, 20].Value = wasteWaterUnitRates[i - 3];
                     worksheet.Cells[i, 21].Value = wasteWaterCosts[i - 3];
-                    worksheet.Cells[i, 22].Value = chargesForEachTenant[i - 3]; 
+                    worksheet.Cells[i, 22].Value = chargesForEachTenant[i - 3];
+                    worksheet.Cells[i, 23].Value = rVias[i - 3];
+                    worksheet.Cells[i, 24].Value = tenantDRs[i - 3];
+                    worksheet.Cells[i, 25].Value = procedures[i - 3];
+                    worksheet.Cells[i, 26].Value = toTenantVias[i - 3];
+                    worksheet.Cells[i, 27].Value = ownerFees[i - 3];
                 }
 
                 // Now format the header;
-                using (var range = worksheet.Cells[1, 1, 1, 22])
+                using (var range = worksheet.Cells[1, 1, 1, 27])
                 {
                     range.Style.Font.Bold = true;
                     range.Style.Fill.PatternType = ExcelFillStyle.Solid;
@@ -109,7 +119,7 @@ namespace FirstPropertyManagement_Project
                 }
 
                 // Now format the column titles;
-                using (var range = worksheet.Cells[2, 1, 2, 22])
+                using (var range = worksheet.Cells[2, 1, 2, 27])
                 {
                     range.Style.Font.Bold = true;
                     range.Style.Fill.PatternType = ExcelFillStyle.Solid;
@@ -121,7 +131,7 @@ namespace FirstPropertyManagement_Project
                 //worksheet.Calculate();
 
                 // Create an autofilter for the range
-                worksheet.Cells["A2:V" + accountNums.Length + 2].AutoFilter = true;
+                worksheet.Cells["A2:AA" + accountNums.Length + 2].AutoFilter = true;
 
                 worksheet.Cells.AutoFitColumns(0);  //Autofit columns for all cells
 
