@@ -45,7 +45,7 @@ namespace FirstPropertyManagement_Project
                 worksheet.Cells[2, 4].Value = "Account No.";
                 worksheet.Cells[2, 5].Value = "Who Pays";
                 worksheet.Cells[2, 6].Value = "Invoice Date";
-                worksheet.Cells[2, 7].Value = "Invoice Amount (Tenant Charges)";
+                worksheet.Cells[2, 7].Value = "Invoice Amount"; // This column is meant to hold the total cost amount from the .pdf
                 worksheet.Cells[2, 8].Value = "Tenant Full Name";
                 worksheet.Cells[2, 9].Value = "From Date";
                 worksheet.Cells[2, 10].Value = "To Date";
@@ -60,7 +60,7 @@ namespace FirstPropertyManagement_Project
                 worksheet.Cells[2, 19].Value = "Vol. Waste Water kL";
                 worksheet.Cells[2, 20].Value = "Rate";
                 worksheet.Cells[2, 21].Value = "Vol. Waste Water $";
-                worksheet.Cells[2, 22].Value = "Total Vol. Chgs $";
+                worksheet.Cells[2, 22].Value = "Total Vol. Chgs $"; // This column holds the (total cost - fixed waste water charges) amount
 
                 // Format the cells 
                 worksheet.Cells["G3:G" + accountNums.Length + 2].Style.Numberformat.Format = "#,##0.00";
@@ -78,7 +78,7 @@ namespace FirstPropertyManagement_Project
                     worksheet.Cells[i, 4].Value = accountNums[i - 3];
                     worksheet.Cells[i, 5].Value = "";
                     worksheet.Cells[i, 6].Value = invoiceDates[i - 3];
-                    worksheet.Cells[i, 7].Value = chargesForEachTenant[i - 3];
+                    worksheet.Cells[i, 7].Value = totalCosts[i-3];
                     //worksheet.Cells[i, 7].Formula = "=DATEVALUE("+ thisReadingDates[i - 3] +")";
                     worksheet.Cells[i, 8].Value = "";
                     //worksheet.Cells[i, 8].Formula = "=DATEVALUE(" + lastReadingDates[i - 3] + ")";
@@ -95,7 +95,7 @@ namespace FirstPropertyManagement_Project
                     worksheet.Cells[i, 19].Value = wasteWaterConsumptions[i - 3];
                     worksheet.Cells[i, 20].Value = wasteWaterUnitRates[i - 3];
                     worksheet.Cells[i, 21].Value = wasteWaterCosts[i - 3];
-                    worksheet.Cells[i, 22].Value = totalCosts[i - 3];
+                    worksheet.Cells[i, 22].Value = chargesForEachTenant[i - 3]; 
                 }
 
                 // Now format the header;
