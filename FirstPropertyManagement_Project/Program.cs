@@ -1,4 +1,15 @@
-﻿using System;
+﻿/*
+    Copyright (C) <2017>  <Sherwin Bayer, Jasneel Chauhan, Heemesh Bhikha, Melvin Mathew> 
+    This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ 
+    This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
+    You should have received a copy of the GNU Affero General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+
+    This program also makes use of the EPPlus API. This library is unmodified, the program simply makes use of its API: you can redistribute it and/or modify it under the terms of the GNU Library General Public License (LGPL) Version 2.1, February 1999.
+    You should have received a copy of the GNU Library General Public License along with this program.  If not, see <http://epplus.codeplex.com/license/>. 
+
+*/
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -7,6 +18,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SystemIOPath = System.IO.Path;
 using MySql.Data.MySqlClient;
+using System.Data;
 
 namespace FirstPropertyManagement_Project
 {
@@ -20,7 +32,7 @@ namespace FirstPropertyManagement_Project
             {
                 
                 //Testing
-                string folderpath = @"C:\2015 FPM_pdf_files";
+                string folderpath = @"C:\FPM_pdf_files";
                 // Be sure to update folderpath to match your directory!
                 string currentFilePath = "";
                 string fileName="";
@@ -28,6 +40,7 @@ namespace FirstPropertyManagement_Project
                 string fileNameReportPath="";
                 string fileNameNoExtension="";
                 IEnumerator files = Directory.GetFiles(folderpath).GetEnumerator();
+                DataRow[] dbRows = DatabaseExtraction_methods.getDatabaseRows();
 
                 List<string> accountNumbersList = new List<string>();
                 List<double> fixedWasteWaterCostsList = new List<double>();
@@ -84,7 +97,6 @@ namespace FirstPropertyManagement_Project
                         string[] chargeDetails = null;
                         string[] consumptionDetails = null;
                         string invoiceDate = "";
-                        //string invoiceDateOutput = "";
                         string thisReadingLine = "";
                         string lastReadingLine = "";
                         int thisReading = 0;
@@ -106,7 +118,7 @@ namespace FirstPropertyManagement_Project
                         string toTenantVia = "";
                         string ownerFee = "";
                         string ownerName = "";
-                        //string[] additionalDatabaseDetails = null;
+                        
                         ArrayList pdftexts = ScanningPDF_methods.ReadPdfFileArrayList(currentFilePath);
                         object[] textsArray = pdftexts.ToArray(); // There should only be 2 pages
 
@@ -231,12 +243,10 @@ namespace FirstPropertyManagement_Project
                             }
 
                         }
+                        
 
-                        DatabaseExtraction_methods.getAdditionalDetails(accountNumber, ref receiveVia, ref payee, ref tenantName,
+                        DatabaseExtraction_methods.getAdditionalDetailsV2(dbRows, accountNumber, ref receiveVia, ref payee, ref tenantName,
                         ref tenantDR, ref procedure, ref toTenantVia, ref ownerFee, ref ownerName);
-
-                        // Heemesh's method which returns a string array
-                        //additionalDatabaseDetails = DatabaseExtraction_methods.getAdditionalDetails(accountNumber);
 
                         // The bool parameter needs to updated according to procedure field from database
                         double amountToCharge = ScanningPDF_methods.calculateChargeTenantAmount(totalCost, wasteWaterCost, true);
@@ -282,14 +292,6 @@ namespace FirstPropertyManagement_Project
                         sw.WriteLine("***************************************");
                         sw.WriteLine("The following contains information from the Database");
                         sw.WriteLine("\n");
-                        /*sw.WriteLine("Received via: " + additionalDatabaseDetails[0]);
-                        sw.WriteLine("Who pays: " + additionalDatabaseDetails[1]);
-                        sw.WriteLine("Tenant name: " + additionalDatabaseDetails[2]);
-                        sw.WriteLine("Tenant DR: " + additionalDatabaseDetails[3]);
-                        sw.WriteLine("Procedure followed: " + additionalDatabaseDetails[4]);
-                        sw.WriteLine("To Tenant Via: " + additionalDatabaseDetails[5]);
-                        sw.WriteLine("Owner fee: " + additionalDatabaseDetails[6]);
-                        sw.WriteLine("Owner name: " + additionalDatabaseDetails[7]);*/
                         sw.WriteLine("Received via: " + receiveVia);
                         sw.WriteLine("Who pays: " + payee);
                         sw.WriteLine("Tenant name: " + tenantName);

@@ -1,9 +1,21 @@
-﻿using System;
+﻿/*
+    Copyright (C) <2017>  <Sherwin Bayer, Jasneel Chauhan, Heemesh Bhikha, Melvin Mathew> 
+    This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ 
+    This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
+    You should have received a copy of the GNU Affero General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+
+    This program also makes use of the EPPlus API. This library is unmodified, the program simply makes use of its API: you can redistribute it and/or modify it under the terms of the GNU Library General Public License (LGPL) Version 2.1, February 1999.
+    You should have received a copy of the GNU Library General Public License along with this program.  If not, see <http://epplus.codeplex.com/license/>. 
+
+*/
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
+using System.Data;
 
 namespace FirstPropertyManagement_Project
 {
@@ -34,10 +46,10 @@ namespace FirstPropertyManagement_Project
                         cmd.Connection = connection;
                         cmd.Parameters.AddWithValue("@ACCOUNT_ID", accountNumber);
                         cmd.ExecuteNonQuery();
-                        
+
                         using (MySqlDataReader myReader = cmd.ExecuteReader())
                         {
-                               
+
                             if (myReader.HasRows)
                             {
                                 while (myReader.Read())
@@ -78,5 +90,75 @@ namespace FirstPropertyManagement_Project
                 }
             }
         }
-    }
+
+        public static DataRow[] getDatabaseRows()
+        {
+            DataRow[] rows = null;
+            try
+            {
+                connection.Open();
+                String tableQueryCommand = @"SELECT ACCOUNT_ID, R_VIA, PAYEE, TENANT_NAME, 
+                                             TENANT_DR, PROCEDURES, TO_TNT_VIA, 
+                                             OWNER_FEE, OWNER_NAME
+                                             FROM FIRST_PROPERTY_DATABASE;";
+
+                using (MySqlCommand cmd = new MySqlCommand())
+                using (MySqlDataAdapter da = new MySqlDataAdapter(cmd))
+                {
+                    cmd.CommandText = tableQueryCommand;
+                    cmd.Connection = connection;
+                    cmd.ExecuteNonQuery();
+
+                    DataTable table = new DataTable();
+                    da.Fill(table);
+                    rows = table.Select();
+                }
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                //MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            return rows;
+        }
+
+        public static void getAdditionalDetailsV2(DataRow[] rows, string accountNumber, ref string r_Via, ref string payee, ref string tenantName,
+            ref string tenant_Dr, ref string procedure, ref string to_Tnt_Via, ref string ownerFee, ref string ownerName)
+        {
+            
+            for (int i = 0; i < rows.Length; i++)
+            {
+                if(rows[i][0].Equals(accountNumber))
+                {
+                    r_Via = rows[i][1].ToString();
+                    payee = rows[i][2].ToString();
+                    tenantName = rows[i][3].ToString();
+                    tenant_Dr = rows[i][4].ToString();
+                    procedure = rows[i][5].ToString();
+                    to_Tnt_Via = rows[i][6].ToString();
+                    ownerFee = rows[i][7].ToString();
+                    ownerName = rows[i][8].ToString();
+
+                    break;
+                }
+                else
+                {
+                    r_Via = "No matching account number";
+                    payee = "No matching account number";
+                    tenantName = "No matching account number";
+                    tenant_Dr = "No matching account number";
+                    procedure = "No matching account number";
+                    to_Tnt_Via = "No matching account number";
+                    ownerFee = "No matching account number";
+                    ownerName = "No matching account number";
+                }
+
+                       
+            }
+                   
+        }
+                
+      }
 }
+
