@@ -73,7 +73,7 @@ namespace FirstPropertyManagement_Project
                 List<string> ownerNameList = new List<string>();
 
                 while (files.MoveNext())
-                {
+                {   
                     currentFilePath = files.Current.ToString(); // Entire file path
                     fileName = SystemIOPath.GetFileName(currentFilePath); // File name + extension only
                     fileextension = SystemIOPath.GetExtension(fileName); // Extension only

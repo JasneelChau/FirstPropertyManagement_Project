@@ -58,30 +58,36 @@ namespace FirstPropertyManagement_Project
                 worksheet.Cells[2, 6].Value = "Invoice Date";
                 worksheet.Cells[2, 7].Value = "Invoice Amount"; // This column is meant to hold the total cost amount from the .pdf
                 worksheet.Cells[2, 8].Value = "Tenant Full Name";
-                worksheet.Cells[2, 9].Value = "From Date";
-                worksheet.Cells[2, 10].Value = "To Date";
-                worksheet.Cells[2, 11].Value = "Previous Reading";
-                worksheet.Cells[2, 12].Value = "Estimate/Actual";
-                worksheet.Cells[2, 13].Value = "This Reading";
-                worksheet.Cells[2, 14].Value = "Estimate/Actual";
-                worksheet.Cells[2, 15].Value = "Vol. Water kL";
-                worksheet.Cells[2, 16].Value = "Rate";
-                worksheet.Cells[2, 17].Value = "Vol. Water $";
-                worksheet.Cells[2, 18].Value = "Vol. Waste Water %";
-                worksheet.Cells[2, 19].Value = "Vol. Waste Water kL";
-                worksheet.Cells[2, 20].Value = "Rate";
-                worksheet.Cells[2, 21].Value = "Vol. Waste Water $";
-                worksheet.Cells[2, 22].Value = "Total Vol. Chgs $"; // This column holds the (total cost - fixed waste water charges) amount
+                worksheet.Cells[2, 9].Value = "Tnt"; // This column holds the (total cost - fixed waste water charges) amount
+                worksheet.Cells[2, 10].Value = "From Date";
+                worksheet.Cells[2, 11].Value = "To Date";
+                worksheet.Cells[2, 12].Value = "Recd. Via";
+                worksheet.Cells[2, 13].Value = "Owner Fee";
+                worksheet.Cells[2, 14].Value = "Tenant Dr";
+                worksheet.Cells[2, 15].Value = "Procedure";
+                worksheet.Cells[2, 16].Value = "To Tnt Via";
+                worksheet.Cells[2, 17].Value = "Previous Reading"; // Previous reading
+                worksheet.Cells[2, 18].Value = "Estimate/Actual"; // Estimate/Actual
+                worksheet.Cells[2, 19].Value = "This Reading"; // This Reading
+                worksheet.Cells[2, 20].Value = "Estimate/Actual"; // Estimate/Actual
+                worksheet.Cells[2, 21].Value = "Vol. Water kL"; // Vol. Water kL
+                worksheet.Cells[2, 22].Value = "Rate";
+                worksheet.Cells[2, 23].Value = "Vol. Water $";
+                worksheet.Cells[2, 24].Value = "Vol. Waste Water %";
+                worksheet.Cells[2, 25].Value = "Vol. Waste Water kL";
+                worksheet.Cells[2, 26].Value = "Rate";
+                worksheet.Cells[2, 27].Value = "Vol. Waste Water $";
+                /*worksheet.Cells[2, 22].Value = "Tnt"; // This column holds the (total cost - fixed waste water charges) amount
                 worksheet.Cells[2, 23].Value = "R Via";
                 worksheet.Cells[2, 24].Value = "Tenant DR";
                 worksheet.Cells[2, 25].Value = "Procedure";
                 worksheet.Cells[2, 26].Value = "To Tenant Via";
-                worksheet.Cells[2, 27].Value = "Owner Fee";
+                worksheet.Cells[2, 27].Value = "Owner Fee";*/
                
                 // Format the cells 
                 worksheet.Cells["G3:G" + accountNums.Length + 2].Style.Numberformat.Format = "#,##0.00";
-                worksheet.Cells["V3:V" + accountNums.Length + 2].Style.Numberformat.Format = "#,##0.00";
-                worksheet.Cells["R3:V" + accountNums.Length + 2].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells["I3:I" + accountNums.Length + 2].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells["X3:X" + accountNums.Length + 2].Style.Numberformat.Format = "#,##0.00";
                 //worksheet.Cells["G3:H" + accountNums.Length + 2].Style.Numberformat.Format = "dd-mmm-yy";
                 // Date format doesn't seem to work?
 
@@ -98,25 +104,31 @@ namespace FirstPropertyManagement_Project
                     //worksheet.Cells[i, 7].Formula = "=DATEVALUE("+ thisReadingDates[i - 3] +")";
                     worksheet.Cells[i, 8].Value = tenantNames[i-3];
                     //worksheet.Cells[i, 8].Formula = "=DATEVALUE(" + lastReadingDates[i - 3] + ")";
-                    worksheet.Cells[i, 9].Value = lastReadingDates[i - 3];
-                    worksheet.Cells[i, 10].Value = thisReadingDates[i - 3];
-                    worksheet.Cells[i, 11].Value = lastReadingAmounts[i - 3];
-                    worksheet.Cells[i, 12].Value = lastReadingAmountTypes[i - 3];
-                    worksheet.Cells[i, 13].Value = thisReadingAmounts[i - 3];
-                    worksheet.Cells[i, 14].Value = thisReadingAmountTypes[i - 3];
-                    worksheet.Cells[i, 15].Value = waterConsumptions[i - 3];
-                    worksheet.Cells[i, 16].Value = waterUnitRates[i - 3];
-                    worksheet.Cells[i, 17].Value = waterCosts[i - 3];
-                    worksheet.Cells[i, 18].Value = wasteWaterPercentages[i - 3];
-                    worksheet.Cells[i, 19].Value = wasteWaterConsumptions[i - 3];
-                    worksheet.Cells[i, 20].Value = wasteWaterUnitRates[i - 3];
-                    worksheet.Cells[i, 21].Value = wasteWaterCosts[i - 3];
-                    worksheet.Cells[i, 22].Value = chargesForEachTenant[i - 3];
+                    worksheet.Cells[i, 9].Value = chargesForEachTenant[i - 3];
+                    worksheet.Cells[i, 10].Value = lastReadingDates[i - 3];
+                    worksheet.Cells[i, 11].Value = thisReadingDates[i - 3];
+                    worksheet.Cells[i, 12].Value = rVias[i - 3];
+                    worksheet.Cells[i, 13].Value = ownerFees[i - 3];
+                    worksheet.Cells[i, 14].Value = tenantDRs[i - 3];
+                    worksheet.Cells[i, 15].Value = procedures[i - 3];
+                    worksheet.Cells[i, 16].Value = toTenantVias[i - 3];
+                    worksheet.Cells[i, 17].Value = lastReadingAmounts[i - 3];
+                    worksheet.Cells[i, 18].Value = lastReadingAmountTypes[i - 3];
+                    worksheet.Cells[i, 19].Value = thisReadingAmounts[i - 3];
+                    worksheet.Cells[i, 20].Value = thisReadingAmountTypes[i - 3];
+                    worksheet.Cells[i, 21].Value = waterConsumptions[i - 3];
+                    worksheet.Cells[i, 22].Value = waterUnitRates[i - 3];
+                    worksheet.Cells[i, 23].Value = waterCosts[i - 3];
+                    worksheet.Cells[i, 24].Value = wasteWaterPercentages[i - 3];
+                    worksheet.Cells[i, 25].Value = wasteWaterConsumptions[i - 3];
+                    worksheet.Cells[i, 26].Value = wasteWaterUnitRates[i - 3];
+                    worksheet.Cells[i, 27].Value = wasteWaterCosts[i - 3];
+                    /*worksheet.Cells[i, 22].Value = chargesForEachTenant[i - 3];
                     worksheet.Cells[i, 23].Value = rVias[i - 3];
                     worksheet.Cells[i, 24].Value = tenantDRs[i - 3];
                     worksheet.Cells[i, 25].Value = procedures[i - 3];
                     worksheet.Cells[i, 26].Value = toTenantVias[i - 3];
-                    worksheet.Cells[i, 27].Value = ownerFees[i - 3];
+                    worksheet.Cells[i, 27].Value = ownerFees[i - 3];*/
                 }
 
                 // Now format the header;
