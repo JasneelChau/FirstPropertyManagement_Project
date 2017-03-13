@@ -123,12 +123,6 @@ namespace FirstPropertyManagement_Project
                     worksheet.Cells[i, 25].Value = wasteWaterConsumptions[i - 3];
                     worksheet.Cells[i, 26].Value = wasteWaterUnitRates[i - 3];
                     worksheet.Cells[i, 27].Value = wasteWaterCosts[i - 3];
-                    /*worksheet.Cells[i, 22].Value = chargesForEachTenant[i - 3];
-                    worksheet.Cells[i, 23].Value = rVias[i - 3];
-                    worksheet.Cells[i, 24].Value = tenantDRs[i - 3];
-                    worksheet.Cells[i, 25].Value = procedures[i - 3];
-                    worksheet.Cells[i, 26].Value = toTenantVias[i - 3];
-                    worksheet.Cells[i, 27].Value = ownerFees[i - 3];*/
                 }
 
                 // Now format the header;
