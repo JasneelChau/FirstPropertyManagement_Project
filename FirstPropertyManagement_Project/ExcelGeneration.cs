@@ -14,15 +14,97 @@ using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace FirstPropertyManagement_Project
 {
     class ExcelGeneration
     {
+
+        // This method is used to obtain the earliest and latest invoice dates from all the .pdf's
+        // that were scanned. Pass in the invoiceDatesArrayList as a string array and set the boolean
+        // parameter to true if searching for the earliest date or false if searching for the latest date
+
+        public static string getEarliestInvoiceDate(string[] invoiceDates, bool earlyOrLate)
+        {
+            string earliestOrLatestDate = "";
+            string dateToCompare = "";
+            int length = invoiceDates.Length;
+            DateTime dateOne = DateTime.Now;
+            DateTime dateTwo = DateTime.Now;
+
+            if(length <= 0)
+            {
+                earliestOrLatestDate = "";
+            }
+            else if(length == 1)
+            {
+                if((Regex.IsMatch(invoiceDates[0], @"^\d{2}\s[a-zA-Z]{3}\s\d{4}$")) && (invoiceDates[0].Length == 11))
+                    earliestOrLatestDate = invoiceDates[0];
+            }
+            else
+            {
+                for(int i = 0; i < length; i++)
+                {
+                    if ((Regex.IsMatch(invoiceDates[i], @"^\d{2}\s[a-zA-Z]{3}\s\d{4}$")) && (invoiceDates[i].Length == 11))
+                    {
+                        if (earliestOrLatestDate.Equals(""))
+                        {
+                            earliestOrLatestDate = invoiceDates[i];
+                            // Converting the date found into a DateTime object with an english NZ date/time format
+                            dateOne = DateTime.Parse(earliestOrLatestDate, new CultureInfo("en-NZ", true), DateTimeStyles.AllowWhiteSpaces & DateTimeStyles.AssumeLocal);
+                        }
+                        else
+                        {
+                            dateToCompare = invoiceDates[i];
+                            dateTwo = DateTime.Parse(dateToCompare, new CultureInfo("en-NZ", true), DateTimeStyles.AllowWhiteSpaces & DateTimeStyles.AssumeLocal);
+                        }
+
+                        if (!earliestOrLatestDate.Equals("") && !dateToCompare.Equals(""))
+                        {
+                            if (earlyOrLate == true)
+                            {
+                                // If dateOne's date is earlier than or the same as dateTwo's date i.e. less than or equal to zero
+                                if (dateOne.CompareTo(dateTwo) <= 0)
+                                {
+                                    // Don't do anything because dateOne is earlier than
+                                    // or the same as dateTwo
+                                }
+                                else
+                                {
+                                    dateOne = dateTwo;
+                                    earliestOrLatestDate = dateToCompare;
+                                }
+                            }
+                            else
+                            {
+                                // If dateOne's date is later than dateTwo's date i.e. greater than zero
+                                if (dateOne.CompareTo(dateTwo) > 0)
+                                {
+                                    // Don't do anything because dateOne is later than
+                                    // dateTwo
+                                }
+                                else
+                                {
+                                    dateOne = dateTwo;
+                                    earliestOrLatestDate = dateToCompare;
+                                }
+                            }
+
+                        }
+                    }
+                    
+                }
+            }
+
+            return earliestOrLatestDate;
+        }
+
         public static string generateExcelFileReport(string folderpath, string[] accountNums, double[] fixedWasteWaterCosts,
             double[] totalCosts, string[] propertyLocations, string[] accountTypes, string[] invoiceDates, string[] dueDates, string[] thisReadingDates,
             string[] lastReadingDates, double[] chargesForEachTenant, int[] thisReadingAmounts, int[] lastReadingAmounts, string[] thisReadingAmountTypes,
@@ -31,11 +113,15 @@ namespace FirstPropertyManagement_Project
             string[] procedures, string[] toTenantVias, string[] ownerFees, string[] ownerNames)
         {
             DateTime currentDate = DateTime.Now.Date;
-            FileInfo newFile = new FileInfo(folderpath + @"\Overall Scanned Report.xlsx");
+            string earliestInvoiceDate = getEarliestInvoiceDate(invoiceDates, true);
+            string latestInvoiceDate = getEarliestInvoiceDate(invoiceDates, false);
+            FileInfo newFile = new FileInfo(folderpath + @"\Overall Scanned Report " + earliestInvoiceDate + " - " 
+                + latestInvoiceDate + ".xlsx");
             if (newFile.Exists)
             {
                 newFile.Delete();  // Ensures we create a new workbook
-                newFile = new FileInfo(folderpath + @"\Overall Scanned Report.xlsx");
+                newFile = new FileInfo(folderpath + @"\Overall Scanned Report " + earliestInvoiceDate + " - "
+                    + latestInvoiceDate + ".xlsx");
             }
             using (ExcelPackage package = new ExcelPackage(newFile))
             {
