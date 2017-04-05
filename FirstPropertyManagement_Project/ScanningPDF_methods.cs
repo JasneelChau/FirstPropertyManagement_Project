@@ -398,18 +398,24 @@ namespace FirstPropertyManagement_Project
                 return accountNo;
         }
 
-        public static double calculateChargeTenantAmount(double totalCost, double fixedCost, bool procedureOne)
+        // This method calculates the amount to charge the tenant by taking the water and wastewater volumetric charges
+        // amount, scanned on the 1st page in the watercare invoice .pdf, and adding those two amounts together
+        // The reason why this is not being calculated by subtracting the fixed wastewater costs from the balance of 
+        // current charges (total cost) amount is becayse the total cost amount SHOULD NOT take into account any 
+        // overdue payments that are yet to be paid by the tenant
+
+        public static double calculateChargeTenantAmount(double waterVolumetricCharges, double wasteWaterVolumetricCharges, bool procedureOne)
         {
             double chargeAmount = 0;
-            if(procedureOne)
+            if (procedureOne)
             {
                 // Perform necessary steps on Palace
-                chargeAmount = totalCost - fixedCost;
+                chargeAmount = waterVolumetricCharges + wasteWaterVolumetricCharges;
             }
             else
             {
                 // Perform necessary steps on Palace
-                chargeAmount = totalCost - fixedCost;
+                chargeAmount = waterVolumetricCharges + wasteWaterVolumetricCharges;
             }
 
             return chargeAmount;

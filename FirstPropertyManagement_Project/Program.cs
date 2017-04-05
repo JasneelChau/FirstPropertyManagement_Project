@@ -118,7 +118,9 @@ namespace FirstPropertyManagement_Project
                         string toTenantVia = "";
                         string ownerFee = "";
                         string ownerName = "";
-                        
+                        double waterFirstPageCost = 0;
+                        double wasteWaterFirstPageCost = 0;
+
                         ArrayList pdftexts = ScanningPDF_methods.ReadPdfFileArrayList(currentFilePath);
                         object[] textsArray = pdftexts.ToArray(); // There should only be 2 pages
 
@@ -150,6 +152,8 @@ namespace FirstPropertyManagement_Project
                                 dueDate = ScanningPDF_methods.getDueOrInvoiceDate(linesOfText, 1);
                                 accountNumber = ScanningPDF_methods.getAccountNumber(linesOfText);
                                 invoiceDate = ScanningPDF_methods.getDueOrInvoiceDate(linesOfText, 0);
+                                waterFirstPageCost = ScanningPDF_methods.getRelevantCharges(linesOfText, "Water volumetric charges", "There is no overdue water volumetric charges");
+                                wasteWaterFirstPageCost = ScanningPDF_methods.getRelevantCharges(linesOfText, "Wastewater volumetric charges", "There is no overdue wastewater volumetric charges");
                                 //Console.WriteLine("Account Number is: " + accountNumber);
                                 //Console.WriteLine("Waste water cost equals: " + wasteWaterCost.ToString("0.00"));
                                 //Console.WriteLine("Total cost equals: " + totalCost.ToString("0.00"));
@@ -234,6 +238,18 @@ namespace FirstPropertyManagement_Project
                                     waterConsumption = ScanningPDF_methods.getOnlyWaterConsumption(consumptionDetails);
                                 }
 
+                                if (waterDetailsCost.Equals("Rates Revised"))
+                                {
+                                    waterDetailsCost = String.Empty;
+                                    waterDetailsCost = waterFirstPageCost.ToString("0.00");
+                                }
+
+                                if (wasteWaterDetailsCost.Equals("Rates Revised"))
+                                {
+                                    wasteWaterDetailsCost = String.Empty;
+                                    wasteWaterDetailsCost = wasteWaterFirstPageCost.ToString("0.00");
+                                }
+
                             }
                             else // Execute if there is ever more than 2 pages within the .pdf file
                             {
@@ -249,7 +265,7 @@ namespace FirstPropertyManagement_Project
                         ref tenantDR, ref procedure, ref toTenantVia, ref ownerFee, ref ownerName);
 
                         // The bool parameter needs to updated according to procedure field from database
-                        double amountToCharge = ScanningPDF_methods.calculateChargeTenantAmount(totalCost, wasteWaterCost, true);
+                        double amountToCharge = ScanningPDF_methods.calculateChargeTenantAmount(waterFirstPageCost, wasteWaterFirstPageCost, true);
 
                         FileStream createFile = new FileStream(fileNameReportPath + " Report.txt", FileMode.Create, FileAccess.Write);
                         StreamWriter sw = new StreamWriter(createFile);
