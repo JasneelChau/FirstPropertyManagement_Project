@@ -1,0 +1,18 @@
+﻿<Properties StartupConfiguration="{327334AB-AD06-4FC1-B8F1-6E006DDD5103}|Default">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release|x86" />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.Workbench ActiveDocument="interfaceWindow.cs">
+    <Files>
+      <File FileName="SinglePDF.cs" Line="401" Column="59" />
+      <File FileName="interfaceWindow.cs" Line="28" Column="32" />
+      <File FileName="MultiPDF.cs" Line="381" Column="73" />
+      <File FileName="DatabaseWindows.cs" Line="7" Column="1" />
+      <File FileName="ScanningPDF_methods.cs" Line="1" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.ItemProperties.FirstPropertyManagementWB PreferredExecutionTarget="MonoDevelop.Default" />
+</Properties>
